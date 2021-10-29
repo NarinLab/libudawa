@@ -20,6 +20,7 @@
 #include <WiFi.h>
 #include <WiFiClientSecure.h>
 #include <ArduinoJson.h>
+#include <ArduinoOTA.h>
 
 #define countof(a) (sizeof(a) / sizeof(a[0]))
 #define DOCSIZE 1500
@@ -44,6 +45,7 @@ struct Config
   uint16_t port;
   char wssid[64];
   char wpass[64];
+  char upass[64];
   char accessToken[64];
   bool provSent;
 
@@ -70,6 +72,7 @@ void recordLog(uint8_t level, const char* fileName, int, const char* functionNam
 void iotInit();
 void startup();
 void udawa();
+void otaUpdateInit();
 
 static const char NARIN_CERT_CA[] PROGMEM = R"EOF(
 -----BEGIN CERTIFICATE-----
@@ -121,6 +124,7 @@ ThingsBoard tb(ssl);
 volatile bool provisionResponseProcessed = false;
 const Provision_Callback provisionCallback = processProvisionResponse;
 bool FLAG_IOT_INIT = 0;
+bool FLAG_OTA_UPDATE_INIT = 0;
 
 void startup() {
   // put your setup code here, to run once:
@@ -151,7 +155,8 @@ void startup() {
 }
 
 void udawa() {
-  // put your main code here, to run repeatedly:
+  ArduinoOTA.handle();
+
   if (!provisionResponseProcessed) {
     tbProvision.loop();
   }
@@ -163,6 +168,11 @@ void udawa() {
   {
     FLAG_IOT_INIT = 0;
     iotInit();
+  }
+  if(FLAG_OTA_UPDATE_INIT)
+  {
+    FLAG_OTA_UPDATE_INIT = 0;
+    otaUpdateInit();
   }
 }
 
@@ -179,6 +189,36 @@ char* getDeviceId()
   uint64_t chipid = ESP.getEfuseMac();
   sprintf(decodedString, "%04X%08X",(uint16_t)(chipid>>32), (uint32_t)chipid);
   return decodedString;
+}
+
+void otaUpdateInit()
+{
+  ArduinoOTA.setHostname(config.name);
+  ArduinoOTA.setPasswordHash(config.upass);
+  ArduinoOTA.begin();
+
+  ArduinoOTA
+    .onStart([]()
+    {
+      String type;
+      if (ArduinoOTA.getCommand() == U_FLASH)
+          type = "sketch";
+      else // U_SPIFFS
+          type = "filesystem";
+    })
+    .onEnd([]()
+    {
+      reboot();
+    })
+    .onProgress([](unsigned int progress, unsigned int total)
+    {
+
+    })
+    .onError([](ota_error_t error)
+    {
+      reboot();
+    }
+  );
 }
 
 void iotInit()
@@ -251,6 +291,7 @@ void cbWiFiOnLostIp(WiFiEvent_t event, WiFiEventInfo_t info)
 void cbWiFiOnGotIp(WiFiEvent_t event, WiFiEventInfo_t info)
 {
   FLAG_IOT_INIT = 1;
+  FLAG_OTA_UPDATE_INIT = 1;
 }
 
 void configReset()
@@ -267,12 +308,13 @@ void configReset()
   char dv[16];
   sprintf(dv, "%s", getDeviceId());
   doc["name"] = "UDAWA" + String(dv);
-  doc["model"] = "Actuator4Ch";
+  doc["model"] = "Generic";
   doc["group"] = "PRITA";
   doc["broker"] = "prita.undiknas.ac.id";
   doc["port"] = 8883;
   doc["wssid"] = wssid;
   doc["wpass"] = wpass;
+  doc["upass"] = upass;
   doc["accessToken"] = accessToken;
   doc["provSent"] = false;
   doc["provisionDeviceKey"] = provisionDeviceKey;
@@ -295,11 +337,12 @@ void configLoadFailSafe()
 
   String name = "UDAWA" + String(dv);
   strlcpy(config.name, name.c_str(), sizeof(config.name));
-  strlcpy(config.model, "Actuator4Ch", sizeof(config.model));
+  strlcpy(config.model, "Generic", sizeof(config.model));
   strlcpy(config.group, "PRITA", sizeof(config.group));
   strlcpy(config.broker, "prita.undiknas.ac.id", sizeof(config.broker));
   strlcpy(config.wssid, wssid, sizeof(config.wssid));
   strlcpy(config.wpass, wpass, sizeof(config.wpass));
+  strlcpy(config.upass, upass, sizeof(config.upass));
   strlcpy(config.accessToken, accessToken, sizeof(config.accessToken));
   config.provSent = false;
   config.port = 8883;
@@ -335,6 +378,7 @@ void configLoad()
     strlcpy(config.broker, doc["broker"].as<const char*>(), sizeof(config.broker));
     strlcpy(config.wssid, doc["wssid"].as<const char*>(), sizeof(config.wssid));
     strlcpy(config.wpass, doc["wpass"].as<const char*>(), sizeof(config.wpass));
+    strlcpy(config.upass, doc["upass"].as<const char*>(), sizeof(config.upass));
     strlcpy(config.accessToken, doc["accessToken"].as<const char*>(), sizeof(config.accessToken));
     config.provSent = doc["provSent"].as<bool>();
     config.port = doc["port"].as<uint16_t>() ? doc["port"].as<uint16_t>() : 8883;
@@ -366,6 +410,7 @@ void configSave()
   doc["port"]  = config.port;
   doc["wssid"] = config.wssid;
   doc["wpass"] = config.wpass;
+  doc["upass"] = config.upass;
   doc["accessToken"] = config.accessToken;
   doc["provSent"] = config.provSent;
   doc["provisionDeviceKey"] = config.provisionDeviceKey;
