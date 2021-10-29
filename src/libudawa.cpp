@@ -5,7 +5,7 @@
  * Researched and developed by PRITA Research Group & Narin Laboratory
  * prita.undiknas.ac.id | narin.co.id
 **/
-#include "main.h"
+#include "libudawa.h"
 
 WiFiClientSecure ssl = WiFiClientSecure();
 Config config;
