@@ -15,7 +15,7 @@ volatile bool provisionResponseProcessed = false;
 const Provision_Callback provisionCallback = processProvisionResponse;
 bool FLAG_IOT_INIT = 0;
 
-void init() {
+void startup() {
   // put your setup code here, to run once:
   Serial.begin(115200);
 
@@ -43,7 +43,7 @@ void init() {
   ssl.setCACert(NARIN_CERT_CA);
 }
 
-void run() {
+void udawa() {
   // put your main code here, to run repeatedly:
   if (!provisionResponseProcessed) {
     tbProvision.loop();

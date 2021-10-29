@@ -68,6 +68,8 @@ bool loadFile(const char* filePath, char* buffer);
 void processProvisionResponse(const Provision_Data &data);
 void recordLog(uint8_t level, const char* fileName, int, const char* functionName);
 void iotInit();
+void startup();
+void udawa();
 
 static const char NARIN_CERT_CA[] PROGMEM = R"EOF(
 -----BEGIN CERTIFICATE-----
