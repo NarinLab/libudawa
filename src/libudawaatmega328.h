@@ -18,6 +18,7 @@
 #define countof(a) (sizeof(a) / sizeof(a[0]))
 #define COMPILED __DATE__ " " __TIME__
 #define BOARD "nanoatmega328new"
+#define ONE_WIRE_BUS 2
 
 struct Led
 {
