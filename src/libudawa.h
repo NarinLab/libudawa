@@ -32,6 +32,7 @@ const char* configFile = "/cfg.json";
 char logBuff[LOG_REC_LENGTH];
 char _logRec[LOG_REC_SIZE][LOG_REC_LENGTH];
 uint8_t _logRecIndex;
+bool FLAG_IOT_RPC_SUBSCRIBE = false;
 
 struct Config
 {
@@ -286,6 +287,7 @@ void cbWiFiOnLostIp(WiFiEvent_t event, WiFiEventInfo_t info)
 {
   sprintf_P(logBuff, PSTR("WiFi (%s) IP Lost!"), WiFi.SSID().c_str());
   recordLog(4, PSTR(__FILE__), __LINE__, PSTR(__func__));
+  WiFi.reconnect();
 }
 
 void cbWiFiOnGotIp(WiFiEvent_t event, WiFiEventInfo_t info)
@@ -463,6 +465,8 @@ void processProvisionResponse(const Provision_Data &data)
   {
     strlcpy(config.accessToken, data["credentialsValue"].as<String>().c_str(), sizeof(config.accessToken));
     configSave();
+    iotInit();
+    FLAG_IOT_RPC_SUBSCRIBE = true;
   }
   if (strncmp(data["credentialsType"], "MQTT_BASIC", strlen("MQTT_BASIC")) == 0)
   {
