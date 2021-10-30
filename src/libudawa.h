@@ -27,8 +27,11 @@
 #define COMPILED __DATE__ " " __TIME__
 #define LOG_REC_SIZE 30
 #define LOG_REC_LENGTH 192
+#define PIN_RXD2 16
+#define PIN_TXD2 17
 
 const char* configFile = "/cfg.json";
+const char* configFileCoMCU = "/comcu.json";
 char logBuff[LOG_REC_LENGTH];
 char _logRec[LOG_REC_SIZE][LOG_REC_LENGTH];
 uint8_t _logRecIndex;
@@ -56,6 +59,31 @@ struct Config
   uint8_t relayChannels[4];
 };
 
+struct ConfigCoMCU
+{
+  bool fPanic;
+  float pEcKcoe;
+  float pEcTcoe;
+  float pEcVin;
+  float pEcPpm;
+  uint16_t pEcR1;
+  uint16_t pEcRa;
+
+  uint16_t bfreq;
+  bool fBuzz;
+
+  bool pRlyOn;
+  bool pRlyOff;
+
+  uint8_t pinBuzzer;
+  uint8_t pinLedR;
+  uint8_t pinLedG;
+  uint8_t pinLedB;
+  uint8_t pinEcPower;
+  uint8_t pinEcGnd;
+  uint8_t pinEcData;
+};
+
 
 void reboot();
 char* getDeviceId();
@@ -67,6 +95,10 @@ void configLoadFailSafe();
 void configLoad();
 void configSave();
 void configReset();
+void configCoMCULoadFailSafe();
+void configCoMCULoad();
+void configCoMCUSave();
+void configCoMCUReset();
 bool loadFile(const char* filePath, char* buffer);
 void processProvisionResponse(const Provision_Data &data);
 void recordLog(uint8_t level, const char* fileName, int, const char* functionName);
@@ -74,6 +106,8 @@ void iotInit();
 void startup();
 void udawa();
 void otaUpdateInit();
+void serialWriteToCoMcu(StaticJsonDocument<DOCSIZE> &doc, bool isRpc);
+void serialReadFromCoMcu(StaticJsonDocument<DOCSIZE> &doc);
 
 static const char NARIN_CERT_CA[] PROGMEM = R"EOF(
 -----BEGIN CERTIFICATE-----
@@ -120,6 +154,7 @@ ny6l9/duT2POAsUN5IwHGDu8b2NT+vCUQRFVHY31
 
 WiFiClientSecure ssl = WiFiClientSecure();
 Config config;
+ConfigCoMCU configcomcu;
 ThingsBoard tbProvision(ssl);
 ThingsBoard tb(ssl);
 volatile bool provisionResponseProcessed = false;
@@ -130,6 +165,7 @@ bool FLAG_OTA_UPDATE_INIT = 0;
 void startup() {
   // put your setup code here, to run once:
   Serial.begin(115200);
+  Serial2.begin(115200, SERIAL_8N1, PIN_RXD2, PIN_TXD2);
 
   if(!SPIFFS.begin())
   {
@@ -424,6 +460,131 @@ void configSave()
 
 }
 
+
+void configCoMCUReset()
+{
+  SPIFFS.remove(configFile);
+  File file = SPIFFS.open(configFileCoMCU, FILE_WRITE);
+  if (!file) {
+    file.close();
+    return;
+  }
+
+  StaticJsonDocument<DOCSIZE> doc;
+
+  doc["fPanic"] = false;
+  doc["pEcKcoe"] = 2.9;
+  doc["pEcTcoe"] = 0.019;
+  doc["pEcVin"] = 4.54;
+  doc["pEcPpm"] = 0.5;
+  doc["pEcR1"] = 992;
+  doc["pEcRa"] =  25;
+
+  doc["bfreq"] = 1600;
+  doc["fBuzz"] = 1;
+
+  doc["pRlyOn"] = false;
+  doc["pRlyOff"] = true;
+
+  doc["pinBuzzer"] = 3;
+  doc["pinLedR"] = 9;
+  doc["pinLedG"] = 10;
+  doc["pinLedB"] = 11;
+  doc["pinEcPower"] = 15;
+  doc["pinEcGnd"] = 16;
+  doc["pinEcData"] = 14;
+
+  serializeJson(doc, file);
+  file.close();
+
+  sprintf_P(logBuff, PSTR("ConfigCoMCU hard reset:"));
+  recordLog(4, PSTR(__FILE__), __LINE__, PSTR(__func__));
+  serializeJsonPretty(doc, Serial);
+}
+
+void configCoMCULoad()
+{
+  File file = SPIFFS.open(configFileCoMCU);
+  StaticJsonDocument<DOCSIZE> doc;
+  DeserializationError error = deserializeJson(doc, file);
+
+  if(error)
+  {
+    file.close();
+    configCoMCUReset();
+    return;
+  }
+  else
+  {
+
+    configcomcu.fPanic = doc["fPanic"].as<bool>();
+    configcomcu.pEcKcoe = doc["pEcKcoe"].as<float>();
+    configcomcu.pEcTcoe = doc["pEcTcoe"].as<float>();
+    configcomcu.pEcVin = doc["pEcVin"].as<float>();
+    configcomcu.pEcPpm = doc["pEcPpm"].as<float>();
+    configcomcu.pEcR1 = doc["pEcR1"].as<uint16_t>();
+    configcomcu.pEcRa =  doc["pEcRa"].as<uint16_t>();
+
+    configcomcu.bfreq = doc["bfreq"].as<uint16_t>();
+    configcomcu.fBuzz = doc["fBuzz"].as<bool>();
+
+    configcomcu.pRlyOn = doc["pRlyOn"].as<bool>();
+    configcomcu.pRlyOff = doc["pRlyOff"].as<bool>();
+
+    configcomcu.pinBuzzer = doc["pinBuzzer"].as<uint8_t>();
+    configcomcu.pinLedR = doc["pinLedR"].as<uint8_t>();
+    configcomcu.pinLedG = doc["pinLedG"].as<uint8_t>();
+    configcomcu.pinLedB = doc["pinLedB"].as<uint8_t>();
+    configcomcu.pinEcPower = doc["pinEcPower"].as<uint8_t>();
+    configcomcu.pinEcGnd = doc["pinEcGnd"].as<uint8_t>();
+    configcomcu.pinEcData = doc["pinEcData"].as<uint8_t>();
+
+    sprintf_P(logBuff, PSTR("ConfigCoMCU loaded successfuly."));
+    recordLog(4, PSTR(__FILE__), __LINE__, PSTR(__func__));
+  }
+  file.close();
+}
+
+void configCoMCUSave()
+{
+  SPIFFS.remove(configFile);
+  File file = SPIFFS.open(configFileCoMCU, FILE_WRITE);
+  if (!file)
+  {
+    file.close();
+    return;
+  }
+
+  StaticJsonDocument<DOCSIZE> doc;
+
+  doc["fPanic"] = configcomcu.fPanic;
+  doc["pEcKcoe"] = configcomcu.pEcKcoe;
+  doc["pEcTcoe"] = configcomcu.pEcTcoe;
+  doc["pEcVin"] = configcomcu.pEcVin;
+  doc["pEcPpm"] = configcomcu.pEcPpm;
+  doc["pEcR1"] = configcomcu.pEcPpm;
+  doc["pEcRa"] = configcomcu.pEcRa;
+
+  doc["bfreq"] = configcomcu.bfreq;
+  doc["fBuzz"] = configcomcu.fBuzz;
+
+  doc["pRlyOn"] = configcomcu.pRlyOn;
+  doc["pRlyOff"] = configcomcu.pRlyOff;
+
+  doc["pinBuzzer"] = configcomcu.pinBuzzer;
+  doc["pinLedR"] = configcomcu.pinLedR;
+  doc["pinLedG"] = configcomcu.pinLedG;
+  doc["pinLedB"] = configcomcu.pinLedB;
+  doc["pinEcPower"] = configcomcu.pinEcPower;
+  doc["pinEcGnd"] = configcomcu.pinEcGnd;
+  doc["pinEcData"] = configcomcu.pinEcData;
+
+  serializeJson(doc, file);
+  file.close();
+
+}
+
+
 bool loadFile(const char* filePath, char *buffer)
 {
   File file = SPIFFS.open(filePath);
@@ -502,5 +663,47 @@ void recordLog(uint8_t level, const char* fileName, int lineNumber, const char* 
   }
   _logRecIndex++;
 }
+
+
+void serialWriteToCoMcu(StaticJsonDocument<DOCSIZE> &doc, bool isRpc)
+{
+  if(true)
+  {
+    StringPrint stream;
+    serializeJson(doc, stream);
+    String result = stream.str();
+    sprintf_P(logBuff, PSTR("%s"), result.c_str());
+    recordLog(5, PSTR(__FILE__), __LINE__, PSTR(__func__));
+  }
+  serializeJson(doc, Serial2);
+  if(isRpc)
+  {
+    delay(50);
+    serialReadFromCoMcu(doc);
+  }
+}
+
+void serialReadFromCoMcu(StaticJsonDocument<DOCSIZE> &doc)
+{
+  StringPrint stream;
+  String result;
+  ReadLoggingStream loggingStream(Serial2, stream);
+  DeserializationError err = deserializeJson(doc, loggingStream);
+  result = stream.str();
+  if (err == DeserializationError::Ok)
+  {
+    if(true){
+      sprintf_P(logBuff, PSTR("%s"), result.c_str());
+      recordLog(5, PSTR(__FILE__), __LINE__, PSTR(__func__));
+    }
+  }
+  else
+  {
+    sprintf_P(logBuff, PSTR("Serial2CoMCU DeserializeJson() returned: %s, content: %s"), err.c_str(), result.c_str());
+    recordLog(5, PSTR(__FILE__), __LINE__, PSTR(__func__));
+    return;
+  }
+}
+
 
 #endif
