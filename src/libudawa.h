@@ -109,6 +109,7 @@ void udawa();
 void otaUpdateInit();
 void serialWriteToCoMcu(StaticJsonDocument<DOCSIZE> &doc, bool isRpc);
 void serialReadFromCoMcu(StaticJsonDocument<DOCSIZE> &doc);
+void syncConfigCoMCU();
 
 static const char NARIN_CERT_CA[] PROGMEM = R"EOF(
 -----BEGIN CERTIFICATE-----
@@ -585,6 +586,36 @@ void configCoMCUSave()
 
 }
 
+void syncConfigCoMCU()
+{
+  configCoMCULoad();
+
+  StaticJsonDocument<DOCSIZE> doc;
+  doc["fPanic"] = configcomcu.fPanic;
+  doc["pEcKcoe"] = configcomcu.pEcKcoe;
+  doc["pEcTcoe"] = configcomcu.pEcTcoe;
+  doc["pEcVin"] = configcomcu.pEcVin;
+  doc["pEcPpm"] = configcomcu.pEcPpm;
+  doc["pEcR1"] = configcomcu.pEcPpm;
+  doc["pEcRa"] = configcomcu.pEcRa;
+
+  doc["bfreq"] = configcomcu.bfreq;
+  doc["fBuzz"] = configcomcu.fBuzz;
+
+  doc["pRlyOn"] = configcomcu.pRlyOn;
+  doc["pRlyOff"] = configcomcu.pRlyOff;
+
+  doc["pinBuzzer"] = configcomcu.pinBuzzer;
+  doc["pinLedR"] = configcomcu.pinLedR;
+  doc["pinLedG"] = configcomcu.pinLedG;
+  doc["pinLedB"] = configcomcu.pinLedB;
+  doc["pinEcPower"] = configcomcu.pinEcPower;
+  doc["pinEcGnd"] = configcomcu.pinEcGnd;
+  doc["pinEcData"] = configcomcu.pinEcData;
+
+  doc["method"] = "setConfigCoMCU";
+  serialWriteToCoMcu(doc, 0);
+}
 
 bool loadFile(const char* filePath, char *buffer)
 {
