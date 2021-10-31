@@ -20,6 +20,7 @@
 #include <WiFi.h>
 #include <WiFiClientSecure.h>
 #include <ArduinoJson.h>
+#include <StreamUtils.h>
 #include <ArduinoOTA.h>
 
 #define countof(a) (sizeof(a) / sizeof(a[0]))
