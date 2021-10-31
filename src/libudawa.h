@@ -106,7 +106,7 @@ void iotInit();
 void startup();
 void udawa();
 void otaUpdateInit();
-void serialWriteToCoMcu(StaticJsonDocument<DOCSIZE> &doc, bool isRpc)
+void serialWriteToCoMcu(StaticJsonDocument<DOCSIZE> &doc, bool isRpc);
 void serialReadFromCoMcu(StaticJsonDocument<DOCSIZE> &doc);
 
 static const char NARIN_CERT_CA[] PROGMEM = R"EOF(
