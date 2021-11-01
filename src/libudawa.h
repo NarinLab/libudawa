@@ -110,8 +110,8 @@ void otaUpdateInit();
 void serialWriteToCoMcu(StaticJsonDocument<DOCSIZE> &doc, bool isRpc);
 void serialReadFromCoMcu(StaticJsonDocument<DOCSIZE> &doc);
 void syncConfigCoMCU();
-StaticJsonDocument<DOCSIZE> readSettings(const char* path);
-StaticJsonDocument<DOCSIZE> writeSettings(StaticJsonDocument<DOCSIZE> &doc, const char* path);
+void readSettings(StaticJsonDocument<DOCSIZE> &doc,const char* path);
+void writeSettings(StaticJsonDocument<DOCSIZE> &doc, const char* path);
 
 static const char NARIN_CERT_CA[] PROGMEM = R"EOF(
 -----BEGIN CERTIFICATE-----
@@ -741,10 +741,9 @@ void serialReadFromCoMcu(StaticJsonDocument<DOCSIZE> &doc)
 }
 
 
-StaticJsonDocument<DOCSIZE> readSettings(const char* path)
+void readSettings(StaticJsonDocument<DOCSIZE> &doc, const char* path)
 {
   File file = SPIFFS.open(path);
-  StaticJsonDocument<DOCSIZE> doc;
   DeserializationError error = deserializeJson(doc, file);
 
   if(error)
@@ -753,10 +752,9 @@ StaticJsonDocument<DOCSIZE> readSettings(const char* path)
     return;
   }
   file.close();
-  return doc;
 }
 
-StaticJsonDocument<DOCSIZE> writeSettings(StaticJsonDocument<DOCSIZE> &doc, const char* path)
+void writeSettings(StaticJsonDocument<DOCSIZE> &doc, const char* path)
 {
   SPIFFS.remove(configFile);
   File file = SPIFFS.open(path, FILE_WRITE);
