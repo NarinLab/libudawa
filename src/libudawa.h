@@ -323,6 +323,7 @@ void cbWiFiOnDisconnected(WiFiEvent_t event, WiFiEventInfo_t info)
 {
   sprintf_P(logBuff, PSTR("WiFi (%s) Disconnected!"), WiFi.SSID().c_str());
   recordLog(4, PSTR(__FILE__), __LINE__, PSTR(__func__));
+  WiFi.reconnect();
 }
 
 void cbWiFiOnLostIp(WiFiEvent_t event, WiFiEventInfo_t info)
