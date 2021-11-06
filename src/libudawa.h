@@ -201,7 +201,8 @@ void udawa() {
   if (!provisionResponseProcessed) {
     tbProvision.loop();
   }
-  else {
+  if(config.accessToken && config.provSent)
+  {
     tb.loop();
   }
 
