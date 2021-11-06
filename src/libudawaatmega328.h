@@ -55,9 +55,6 @@ struct ConfigCoMCU
   uint16_t bfreq;
   bool fBuzz;
 
-  bool pRlyOn;
-  bool pRlyOff;
-
   uint8_t pinBuzzer;
   uint8_t pinLedR;
   uint8_t pinLedG;
@@ -92,6 +89,8 @@ class libudawaatmega328
     void runPanic();
     void coMCUGetInfo(StaticJsonDocument<DOCSIZE> &doc);
     ConfigCoMCU configCoMCU;
+    OneWire oneWire(ONE_WIRE_BUS);
+    DallasTemperature ds18b20(&oneWire);
   private:
     bool _toBoolean(String &value);
     void _serialCommandHandler(HardwareSerial &serial);
@@ -110,6 +109,7 @@ void libudawaatmega328::begin()
 {
   Serial.begin(115200);
   Log.begin(LOG_LEVEL_VERBOSE, &Serial);
+  setConfigCoMCU();
 }
 
 void libudawaatmega328::execute()
@@ -216,24 +216,25 @@ void libudawaatmega328::serialReadFromESP32()
 
 void libudawaatmega328::setConfigCoMCU(StaticJsonDocument<DOCSIZE> &doc)
 {
-  configCoMCU.fPanic = doc["fPanic"].as<bool>();
-  configCoMCU.pEcKcoe = doc["pEcKcoe"].as<float>();
-  configCoMCU.pEcTcoe = doc["pEcTcoe"].as<float>();
-  configCoMCU.pEcVin = doc["pEcVin"].as<float>();
-  configCoMCU.pEcPpm = doc["pEcPpm"].as<float>();
-  configCoMCU.pEcR1 = doc["pEcR1"].as<unsigned int>();
-  configCoMCU.pEcRa = doc["pEcRa"].as<unsigned int>();
 
-  configCoMCU.bfreq = doc["bfreq"].as<uint16_t>();
-  configCoMCU.fBuzz = doc["fBuzz"].as<bool>();
+  configCoMCU.fPanic = doc["fPanic"].as<bool>() | false;
+  configCoMCU.pEcKcoe = doc["pEcKcoe"].as<float>()  | 2.9;
+  configCoMCU.pEcTcoe = doc["pEcTcoe"].as<float>()  | 0.019;
+  configCoMCU.pEcVin = doc["pEcVin"].as<float>() | 4.54;
+  configCoMCU.pEcPpm = doc["pEcPpm"].as<float>() | 0.5;
+  configCoMCU.pEcR1 = doc["pEcR1"].as<unsigned int>() | 0.5;
+  configCoMCU.pEcRa = doc["pEcRa"].as<unsigned int>() | 25;
 
-  configCoMCU.pinBuzzer = doc["pinBuzzer"].as<uint8_t>();
-  configCoMCU.pinLedR = doc["pinLedR"].as<uint8_t>();
-  configCoMCU.pinLedG = doc["pinLedG"].as<uint8_t>();
-  configCoMCU.pinLedB = doc["pinLedB"].as<uint8_t>();
-  configCoMCU.pinEcPower = doc["pinEcPower"].as<uint8_t>();
-  configCoMCU.pinEcGnd = doc["pinEcGnd"].as<uint8_t>();
-  configCoMCU.pinEcData = doc["pinEcData"].as<uint8_t>();
+  configCoMCU.bfreq = doc["bfreq"].as<uint16_t>() | 1600;
+  configCoMCU.fBuzz = doc["fBuzz"].as<bool>() | true;
+
+  configCoMCU.pinBuzzer = doc["pinBuzzer"].as<uint8_t>() | 3;
+  configCoMCU.pinLedR = doc["pinLedR"].as<uint8_t>() | 9;
+  configCoMCU.pinLedG = doc["pinLedG"].as<uint8_t>() | 10;
+  configCoMCU.pinLedB = doc["pinLedB"].as<uint8_t>() | 11;
+  configCoMCU.pinEcPower = doc["pinEcPower"].as<uint8_t>() | 15;
+  configCoMCU.pinEcGnd = doc["pinEcGnd"].as<uint8_t>() | 16;
+  configCoMCU.pinEcData = doc["pinEcData"].as<uint8_t>() | 14;
 }
 
 void libudawaatmega328::setPin(StaticJsonDocument<DOCSIZE> &doc)
@@ -330,8 +331,6 @@ void libudawaatmega328::runBuzzer()
 
 float libudawaatmega328::readWaterTemp()
 {
-  OneWire oneWire(ONE_WIRE_BUS);
-  DallasTemperature ds18b20(&oneWire);
   float celcius = ds18b20.getTempCByIndex(0);
   return celcius;
 }

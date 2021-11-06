@@ -73,9 +73,6 @@ struct ConfigCoMCU
   uint16_t bfreq;
   bool fBuzz;
 
-  bool pRlyOn;
-  bool pRlyOff;
-
   uint8_t pinBuzzer;
   uint8_t pinLedR;
   uint8_t pinLedG;
@@ -490,9 +487,6 @@ void configCoMCUReset()
   doc["bfreq"] = 1600;
   doc["fBuzz"] = 1;
 
-  doc["pRlyOn"] = false;
-  doc["pRlyOff"] = true;
-
   doc["pinBuzzer"] = 3;
   doc["pinLedR"] = 9;
   doc["pinLedG"] = 10;
@@ -535,9 +529,6 @@ void configCoMCULoad()
     configcomcu.bfreq = doc["bfreq"].as<uint16_t>();
     configcomcu.fBuzz = doc["fBuzz"].as<bool>();
 
-    configcomcu.pRlyOn = doc["pRlyOn"].as<bool>();
-    configcomcu.pRlyOff = doc["pRlyOff"].as<bool>();
-
     configcomcu.pinBuzzer = doc["pinBuzzer"].as<uint8_t>();
     configcomcu.pinLedR = doc["pinLedR"].as<uint8_t>();
     configcomcu.pinLedG = doc["pinLedG"].as<uint8_t>();
@@ -575,9 +566,6 @@ void configCoMCUSave()
   doc["bfreq"] = configcomcu.bfreq;
   doc["fBuzz"] = configcomcu.fBuzz;
 
-  doc["pRlyOn"] = configcomcu.pRlyOn;
-  doc["pRlyOff"] = configcomcu.pRlyOff;
-
   doc["pinBuzzer"] = configcomcu.pinBuzzer;
   doc["pinLedR"] = configcomcu.pinLedR;
   doc["pinLedG"] = configcomcu.pinLedG;
@@ -606,9 +594,6 @@ void syncConfigCoMCU()
 
   doc["bfreq"] = configcomcu.bfreq;
   doc["fBuzz"] = configcomcu.fBuzz;
-
-  doc["pRlyOn"] = configcomcu.pRlyOn;
-  doc["pRlyOff"] = configcomcu.pRlyOff;
 
   doc["pinBuzzer"] = configcomcu.pinBuzzer;
   doc["pinLedR"] = configcomcu.pinLedR;
@@ -700,7 +685,6 @@ void recordLog(uint8_t level, const char* fileName, int lineNumber, const char* 
   }
   _logRecIndex++;
 }
-
 
 void serialWriteToCoMcu(StaticJsonDocument<DOCSIZE> &doc, bool isRpc)
 {
