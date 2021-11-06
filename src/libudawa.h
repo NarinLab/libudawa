@@ -713,6 +713,7 @@ void serialWriteToCoMcu(StaticJsonDocument<DOCSIZE> &doc, bool isRpc)
     recordLog(5, PSTR(__FILE__), __LINE__, PSTR(__func__));
   }
   serializeJson(doc, Serial2);
+  serializeJsonPretty(doc, Serial);
   if(isRpc)
   {
     delay(50);
