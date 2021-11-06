@@ -322,7 +322,6 @@ void cbWifiOnConnected(WiFiEvent_t event, WiFiEventInfo_t info)
 void cbWiFiOnDisconnected(WiFiEvent_t event, WiFiEventInfo_t info)
 {
   sprintf_P(logBuff, PSTR("WiFi (%s) Disconnected!"), WiFi.SSID().c_str());
-  WiFi.reconnect();
   recordLog(4, PSTR(__FILE__), __LINE__, PSTR(__func__));
 }
 
