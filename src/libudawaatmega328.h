@@ -351,6 +351,7 @@ void libudawaatmega328::runBuzzer()
 
 float libudawaatmega328::readWaterTemp()
 {
+  ds18b20.requestTemperatures();
   float celcius = ds18b20.getTempCByIndex(0);
   return celcius;
 }
