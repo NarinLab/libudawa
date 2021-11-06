@@ -321,8 +321,8 @@ void cbWifiOnConnected(WiFiEvent_t event, WiFiEventInfo_t info)
 void cbWiFiOnDisconnected(WiFiEvent_t event, WiFiEventInfo_t info)
 {
   sprintf_P(logBuff, PSTR("WiFi (%s) Disconnected!"), WiFi.SSID().c_str());
-  Serial.println(event);
-  Serial.println(info);
+  Serial.println(String(event));
+  Serial.println(String(info));
   recordLog(4, PSTR(__FILE__), __LINE__, PSTR(__func__));
 }
 
