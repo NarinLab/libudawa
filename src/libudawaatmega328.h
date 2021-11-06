@@ -138,8 +138,6 @@ void libudawaatmega328::execute()
   runRgbLed();
   runBuzzer();
   runPanic();
-
-  Serial.println(readWaterTemp());
 }
 
 void libudawaatmega328::coMCUGetInfo(StaticJsonDocument<DOCSIZE> &doc)
