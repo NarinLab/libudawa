@@ -589,7 +589,7 @@ void syncConfigCoMCU()
   doc["pEcTcoe"] = configcomcu.pEcTcoe;
   doc["pEcVin"] = configcomcu.pEcVin;
   doc["pEcPpm"] = configcomcu.pEcPpm;
-  doc["pEcR1"] = configcomcu.pEcPpm;
+  doc["pEcR1"] = configcomcu.pEcR1;
   doc["pEcRa"] = configcomcu.pEcRa;
 
   doc["bfreq"] = configcomcu.bfreq;
