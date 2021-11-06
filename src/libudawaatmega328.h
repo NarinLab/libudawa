@@ -89,8 +89,8 @@ class libudawaatmega328
     void runPanic();
     void coMCUGetInfo(StaticJsonDocument<DOCSIZE> &doc);
     ConfigCoMCU configCoMCU;
-    OneWire oneWire(ONE_WIRE_BUS);
-    DallasTemperature ds18b20(&oneWire);
+    OneWire oneWire;
+    DallasTemperature ds18b20;
   private:
     bool _toBoolean(String &value);
     void _serialCommandHandler(HardwareSerial &serial);
@@ -103,6 +103,8 @@ class libudawaatmega328
 libudawaatmega328::libudawaatmega328()
 {
   _buzzer.lastState = 1;
+  oneWire = OneWire(ONE_WIRE_BUS);
+  ds18b20 = DallasTemperature(&oneWire);
 }
 
 void libudawaatmega328::begin()
@@ -118,6 +120,8 @@ void libudawaatmega328::execute()
   runRgbLed();
   runBuzzer();
   runPanic();
+
+  Serial.println(readWaterTemp());
 }
 
 void libudawaatmega328::coMCUGetInfo(StaticJsonDocument<DOCSIZE> &doc)
