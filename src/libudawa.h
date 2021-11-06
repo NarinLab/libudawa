@@ -481,7 +481,7 @@ void configCoMCUReset()
   doc["pEcTcoe"] = 0.019;
   doc["pEcVin"] = 4.54;
   doc["pEcPpm"] = 0.5;
-  doc["pEcR1"] = 992;
+  doc["pEcR1"] = 1000;
   doc["pEcRa"] =  25;
 
   doc["bfreq"] = 1600;
@@ -560,7 +560,7 @@ void configCoMCUSave()
   doc["pEcTcoe"] = configcomcu.pEcTcoe;
   doc["pEcVin"] = configcomcu.pEcVin;
   doc["pEcPpm"] = configcomcu.pEcPpm;
-  doc["pEcR1"] = configcomcu.pEcPpm;
+  doc["pEcR1"] = configcomcu.pEcR1;
   doc["pEcRa"] = configcomcu.pEcRa;
 
   doc["bfreq"] = configcomcu.bfreq;
