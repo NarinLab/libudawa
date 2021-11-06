@@ -117,7 +117,7 @@ void libudawaatmega328::begin()
   configCoMCU.pEcTcoe = 0.019;
   configCoMCU.pEcVin = 4.54;
   configCoMCU.pEcPpm = 0.5;
-  configCoMCU.pEcR1 = 0.5;
+  configCoMCU.pEcR1 = 1000;
   configCoMCU.pEcRa = 25;
 
   configCoMCU.bfreq = 1600;
