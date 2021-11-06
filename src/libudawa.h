@@ -160,7 +160,7 @@ WiFiClientSecure ssl = WiFiClientSecure();
 Config config;
 ConfigCoMCU configcomcu;
 ThingsBoard tbProvision(ssl);
-ThingsBoard tb(ssl);
+ThingsBoardSized<DOCSIZE, 64> tb(ssl);
 volatile bool provisionResponseProcessed = false;
 const Provision_Callback provisionCallback = processProvisionResponse;
 bool FLAG_IOT_INIT = 0;
