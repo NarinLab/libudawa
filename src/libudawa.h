@@ -702,7 +702,7 @@ void recordLog(uint8_t level, const char* fileName, int lineNumber, const char* 
 
 void serialWriteToCoMcu(StaticJsonDocument<DOCSIZE> &doc, bool isRpc)
 {
-  if(true)
+  if(false)
   {
     StringPrint stream;
     serializeJson(doc, stream);
