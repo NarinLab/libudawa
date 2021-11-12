@@ -273,25 +273,30 @@ void iotInit()
     {
       sprintf_P(logBuff, PSTR("Starting provision initiation to %s:%d"),  config.broker, config.port);
       recordLog(4, PSTR(__FILE__), __LINE__, PSTR(__func__));
-      if(!tbProvision.connect(config.broker, "provision", config.port))
+      if(tbProvision.connect(config.broker, "provision", config.port))
+      {
+        sprintf_P(logBuff, PSTR("Connected to provisioning server: %s:%d"),  config.broker, config.port);
+        recordLog(5, PSTR(__FILE__), __LINE__, PSTR(__func__));
+
+        GenericCallback cb[2] = {
+          { "provisionResponse", processProvisionResponse },
+          { "provisionResponse", processProvisionResponse }
+        };
+        if(tb.callbackSubscribe(cb, 2))
+        {
+          if(tbProvision.sendProvisionRequest(config.name, config.provisionDeviceKey, config.provisionDeviceSecret))
+          {
+            config.provSent = true;
+            sprintf_P(logBuff, PSTR("Provision request was sent!"));
+            recordLog(5, PSTR(__FILE__), __LINE__, PSTR(__func__));
+          }
+        }
+      }
+      else
       {
         sprintf_P(logBuff, PSTR("Failed to connect to provisioning server: %s:%d"),  config.broker, config.port);
         recordLog(1, PSTR(__FILE__), __LINE__, PSTR(__func__));
         return;
-      }
-
-      GenericCallback cb[2] = {
-        { "provisionResponse", processProvisionResponse },
-        { "provisionResponse", processProvisionResponse }
-      };
-      if(tb.callbackSubscribe(cb, 2))
-      {
-        if(tbProvision.sendProvisionRequest(config.name, config.provisionDeviceKey, config.provisionDeviceSecret))
-        {
-          config.provSent = true;
-          sprintf_P(logBuff, PSTR("Provision request was sent!"));
-          recordLog(5, PSTR(__FILE__), __LINE__, PSTR(__func__));
-        }
       }
     }
   }
