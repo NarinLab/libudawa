@@ -869,6 +869,7 @@ class ThingsBoardSized
 
       // Save data for firmware update
 #if defined(ESP8266) || defined(ESP32)
+      serializeJsonPrety(data, Serial);
       if (data["fw_title"] != nullptr)
         m_fwTitle = data["fw_title"].as<String>();
 
