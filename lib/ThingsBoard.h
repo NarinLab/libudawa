@@ -864,6 +864,7 @@ class ThingsBoardSized
         }
       } else {
         Logger::log("Shared attribute update key not found.");
+        SerializeJsonPretty(data, Serial);
         return;
       }
 
