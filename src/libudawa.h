@@ -16,7 +16,7 @@
 #include <FS.h>
 #include <SPIFFS.h>
 #include <Arduino.h>
-#include <thingsboard.h>
+#include <ThingsBoard.h>
 #include <WiFi.h>
 #include <WiFiClientSecure.h>
 #include <ArduinoJson.h>
