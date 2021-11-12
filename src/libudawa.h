@@ -284,7 +284,7 @@ void iotInit()
         { "provisionResponse", processProvisionResponse },
         { "provisionResponse", processProvisionResponse }
       };
-      tb.callbackSubscribe(callbacks, 2);
+      tb.callbackSubscribe(cb, 2);
       if(tbProvision.sendProvisionRequest(config.name, config.provisionDeviceKey, config.provisionDeviceSecret))
       {
         config.provSent = true;
