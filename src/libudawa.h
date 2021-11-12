@@ -282,7 +282,7 @@ void iotInit()
 
       GenericCallback cb[2] = {
         { "provisionResponse", processProvisionResponse },
-        { "provisionResponse", processProvisionResponse },
+        { "provisionResponse", processProvisionResponse }
       };
       tb.callbackSubscribe(callbacks, 2);
       if(tbProvision.sendProvisionRequest(config.name, config.provisionDeviceKey, config.provisionDeviceSecret))
