@@ -280,14 +280,11 @@ void iotInit()
         recordLog(1, PSTR(__FILE__), __LINE__, PSTR(__func__));
         return;
       }
-      if(tbProvision.Provision_Subscribe(provisionCallback))
+      if(tbProvision.sendProvisionRequest(config.name, config.provisionDeviceKey, config.provisionDeviceSecret))
       {
-        if(tbProvision.sendProvisionRequest(config.name, config.provisionDeviceKey, config.provisionDeviceSecret))
-        {
-          config.provSent = true;
-          sprintf_P(logBuff, PSTR("Provision request was sent!"));
-          recordLog(5, PSTR(__FILE__), __LINE__, PSTR(__func__));
-        }
+        config.provSent = true;
+        sprintf_P(logBuff, PSTR("Provision request was sent!"));
+        recordLog(5, PSTR(__FILE__), __LINE__, PSTR(__func__));
       }
     }
   }

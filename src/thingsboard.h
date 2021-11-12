@@ -92,7 +92,7 @@ using Shared_Attribute_Data = JsonObject;
 using Provision_Data = JsonObject;
 
 // Generic Callback wrapper
-class genericCallback {
+class GenericCallback {
     template <size_t PayloadSize, size_t MaxFieldsAmt, typename Logger>
     friend class ThingsBoardSized;
   public:
@@ -101,12 +101,12 @@ class genericCallback {
     using processFn = RPC_Response (*)(const RPC_Data &data);
 
     // Constructs empty callback
-    inline genericCallback()
+    inline GenericCallback()
       : m_name(), m_cb(NULL)                {  }
 
     // Constructs callback that will be fired upon a RPC request arrival with
     // given method name
-    inline genericCallback(const char *methodName, processFn cb)
+    inline GenericCallback(const char *methodName, processFn cb)
       : m_name(methodName), m_cb(cb)        {  }
 
   private:
@@ -294,7 +294,7 @@ class ThingsBoardSized
     // Server-side RPC API
 
     // Subscribes multiple Generic Callbacks with given size
-    bool callbackSubscribe(const genericCallback *callbacks, size_t callbacksSize)
+    bool callbackSubscribe(const GenericCallback *callbacks, size_t callbacksSize)
     {
       if (callbacksSize > sizeof(m_genericCallbacks) / sizeof(*m_genericCallbacks)){return false;}
       if (ThingsBoardSized::m_subscribedInstance){return false;}
@@ -694,16 +694,8 @@ class ThingsBoardSized
       if (data["fw_size"])
         m_fwSize = data["fw_size"].as<int>();
 
-      for (size_t i = 0; i < sizeof(m_sharedAttributeUpdateCallbacks) / sizeof(*m_sharedAttributeUpdateCallbacks); ++i) {
-        if (m_sharedAttributeUpdateCallbacks[i].m_cb) {
-
-          Logger::log("Calling callbacks for updated attribute");
-
-          // Getting non-existing field from JSON should automatically
-          // set JSONVariant to null
-          m_sharedAttributeUpdateCallbacks[i].m_cb(data);
-        }
-      }
+        Logger::log("Calling callbacks for updated attribute");
+        m_genericCallbacks[0].m_cb(data);
     }
 
     // Processes provisioning response
@@ -726,8 +718,8 @@ class ThingsBoardSized
         return;
       }
 
-      if (m_provisionCallback.m_cb) {
-        m_provisionCallback.m_cb(data);
+      if (m_genericCallbacks[1].m_cb) {
+        m_genericCallbacks[1].m_cb(data);
       }
     }
 
@@ -759,7 +751,7 @@ class ThingsBoardSized
     }
 
     PubSubClient m_client;              // PubSub MQTT client instance.
-    genericCallback m_genericCallbacks[8];     // Generic Callbacks array
+    GenericCallback m_genericCallbacks[8];     // Generic Callbacks array
     unsigned int m_requestId;
 
     // For Firmware Update
