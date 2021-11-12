@@ -36,7 +36,7 @@ const char* configFileCoMCU = "/comcu.json";
 char logBuff[LOG_REC_LENGTH];
 char _logRec[LOG_REC_SIZE][LOG_REC_LENGTH];
 uint8_t _logRecIndex;
-bool FLAG_IOT_RPC_SUBSCRIBE = false;
+bool FLAG_IOT_SUBSCRIBE = false;
 
 struct Config
 {
@@ -301,7 +301,7 @@ void iotInit()
       {
         sprintf_P(logBuff, PSTR("IoT Connected!"));
         recordLog(5, PSTR(__FILE__), __LINE__, PSTR(__func__));
-        FLAG_IOT_RPC_SUBSCRIBE = true;
+        FLAG_IOT_SUBSCRIBE = true;
       }
     }
   }
@@ -649,7 +649,7 @@ void processProvisionResponse(const Provision_Data &data)
     strlcpy(config.accessToken, data["credentialsValue"].as<String>().c_str(), sizeof(config.accessToken));
     configSave();
     iotInit();
-    FLAG_IOT_RPC_SUBSCRIBE = true;
+    FLAG_IOT_SUBSCRIBE = true;
   }
   if (strncmp(data["credentialsType"], "MQTT_BASIC", strlen("MQTT_BASIC")) == 0)
   {
