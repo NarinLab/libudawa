@@ -93,13 +93,6 @@ class Telemetry {
     bool serializeKeyval(JsonVariant &jsonObj) const;
 };
 
-#if defined(ESP8266) || defined(ESP32)
-    // For Firmware Update
-    String m_fwVersion, m_fwTitle, m_fwChecksum, m_fwChecksumAlgorithm, m_fwState;
-    unsigned int m_fwSize;
-    int m_fwChunkReceive;
-#endif
-
 // Convenient aliases
 
 using Attribute = Telemetry;
@@ -865,12 +858,16 @@ class ThingsBoardSized
       serializeJsonPretty(jsonBuffer, Serial);
       JsonObject data = jsonBuffer.template as<JsonObject>();
 
-      if (data != nullptr && (data.size() >= 1)) {
+      if (data != nullptr && (data.size() >= 1))
+      {
         Logger::log("Received shared attribute update request");
-        if (data["shared"] != nullptr) {
+        if (data["shared"] != nullptr)
+        {
           data = data["shared"];
         }
-      } else {
+      }
+      else
+      {
         Logger::log("Shared attribute update key not found.");
         return;
       }
@@ -959,6 +956,13 @@ class ThingsBoardSized
     Provision_Callback m_provisionCallback; // Provision response callback
 #endif
     unsigned int m_requestId;
+
+#if defined(ESP8266) || defined(ESP32)
+    // For Firmware Update
+    String m_fwVersion, m_fwTitle, m_fwChecksum, m_fwChecksumAlgorithm, m_fwState;
+    unsigned int m_fwSize;
+    int m_fwChunkReceive;
+#endif
 
     // PubSub client cannot call a method when message arrives on subscribed topic.
     // Only free-standing function is allowed.
