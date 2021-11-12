@@ -858,7 +858,7 @@ class ThingsBoardSized
       serializeJsonPretty(jsonBuffer, Serial);
       JsonObject data = jsonBuffer.template as<JsonObject>();
 
-      if (data != nullptr && (data.size() >= 1))
+      if (data && (data.size() >= 1))
       {
         Logger::log("Received shared attribute update request");
         if (data["shared"] != nullptr)
