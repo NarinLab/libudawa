@@ -865,7 +865,7 @@ class ThingsBoardSized
       } else {
         Logger::log("Shared attribute update key not found.");
         Serial.println("Detail: ");
-        SerializeJsonPretty(jsonBuffer, Serial);
+        serializeJsonPretty(jsonBuffer, Serial);
         return;
       }
 
@@ -973,6 +973,7 @@ class ThingsBoardSized
     // PubSub client cannot call a method when message arrives on subscribed topic.
     // Only free-standing function is allowed.
     // To be able to forward event to an instance, rather than to a function, this pointer exists.
+    static ThingsBoardSized *m_subscribedInstance;
     static ThingsBoardSized *m_subscribedInstanceRPC;
     static ThingsBoardSized *m_subscribedInstanceSharedAttributes;
     static ThingsBoardSized *m_subscribedInstanceOTAUpdate;
@@ -1008,6 +1009,10 @@ class ThingsBoardSized
 
 template<size_t PayloadSize, size_t MaxFieldsAmt, typename Logger>
 ThingsBoardSized<PayloadSize, MaxFieldsAmt, Logger> *ThingsBoardSized<PayloadSize, MaxFieldsAmt, Logger>::m_subscribedInstance;
+ThingsBoardSized<PayloadSize, MaxFieldsAmt, Logger> *ThingsBoardSized<PayloadSize, MaxFieldsAmt, Logger>::m_subscribedInstanceRPC;
+ThingsBoardSized<PayloadSize, MaxFieldsAmt, Logger> *ThingsBoardSized<PayloadSize, MaxFieldsAmt, Logger>::m_subscribedInstanceSharedAttributes;
+ThingsBoardSized<PayloadSize, MaxFieldsAmt, Logger> *ThingsBoardSized<PayloadSize, MaxFieldsAmt, Logger>::m_subscribedInstanceProvisioning;
+ThingsBoardSized<PayloadSize, MaxFieldsAmt, Logger> *ThingsBoardSized<PayloadSize, MaxFieldsAmt, Logger>::m_subscribedInstanceOTAUpdate;
 
 #if !defined(ESP8266) && !defined(ESP32)
 
