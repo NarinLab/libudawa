@@ -319,10 +319,7 @@ void iotInit()
 
 void cbWifiOnConnected(WiFiEvent_t event, WiFiEventInfo_t info)
 {
-  IPAddress ip = WiFi.localIP();
-  char ipa[25];
-  sprintf(ipa, "%d.%d.%d.%d", ip[0], ip[1], ip[2], ip[3]);
-  sprintf_P(logBuff, PSTR("WiFi Connected to %s, IP: %s"), WiFi.SSID().c_str(), ipa);
+  sprintf_P(logBuff, PSTR("WiFi Connected to %s"), WiFi.SSID().c_str());
   recordLog(4, PSTR(__FILE__), __LINE__, PSTR(__func__));
   WIFI_RECONNECT_ATTEMPT = 0;
 }
