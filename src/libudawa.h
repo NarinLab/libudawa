@@ -279,6 +279,12 @@ void iotInit()
         recordLog(1, PSTR(__FILE__), __LINE__, PSTR(__func__));
         return;
       }
+
+      GenericCallback cb[2] = {
+        { "provisionResponse", processProvisionResponse },
+        { "provisionResponse", processProvisionResponse },
+      };
+      tb.callbackSubscribe(callbacks, 2)
       if(tbProvision.sendProvisionRequest(config.name, config.provisionDeviceKey, config.provisionDeviceSecret))
       {
         config.provSent = true;
