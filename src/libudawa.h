@@ -498,7 +498,6 @@ void configSave()
 
   serializeJson(doc, file);
   file.close();
-
 }
 
 
