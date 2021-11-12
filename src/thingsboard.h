@@ -295,7 +295,9 @@ class ThingsBoardSized
     {
       if (callbacksSize > sizeof(m_genericCallbacks) / sizeof(*m_genericCallbacks)){return false;}
       if (ThingsBoardSized::m_subscribedInstance){return false;}
+      Serial.print("m_client:");
       Serial.println(m_client.connected());
+      Serial.print("subscribe: /provision/response");
       Serial.println(m_client.subscribe("/provision/response"));
       m_client.subscribe("v1/devices/me/rpc/request/+");
       m_client.subscribe("v1/devices/me/attributes/response/+");
