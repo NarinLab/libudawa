@@ -30,6 +30,7 @@
 #define LOG_REC_LENGTH 192
 #define PIN_RXD2 16
 #define PIN_TXD2 17
+#define WIFI_FALLBACK_COUNTER 20
 
 const char* configFile = "/cfg.json";
 const char* configFileCoMCU = "/comcu.json";
@@ -41,6 +42,8 @@ bool FLAG_IOT_RPC_SUBSCRIBE = false;
 bool FLAG_IOT_OTA_UPDATE_SUBSCRIBE = false;
 bool FLAG_IOT_INIT = false;
 bool FLAG_OTA_UPDATE_INIT = false;
+uint8_t WIFI_RECONNECT_ATTEMPT = 0;
+bool WIFI_IS_DEFAULT = false;
 
 struct Config
 {
@@ -54,6 +57,8 @@ struct Config
   uint16_t port;
   char wssid[64];
   char wpass[64];
+  char dssid[64];
+  char dpass[64];
   char upass[64];
   char accessToken[64];
   bool provSent;
@@ -317,15 +322,33 @@ void cbWifiOnConnected(WiFiEvent_t event, WiFiEventInfo_t info)
   IPAddress ip = WiFi.localIP();
   char ipa[25];
   sprintf(ipa, "%d.%d.%d.%d", ip[0], ip[1], ip[2], ip[3]);
-  sprintf_P(logBuff, PSTR("WiFi Connected to %s"), WiFi.SSID().c_str());
+  sprintf_P(logBuff, PSTR("WiFi Connected to %s, IP: %s"), WiFi.SSID().c_str(), ipa);
   recordLog(4, PSTR(__FILE__), __LINE__, PSTR(__func__));
+  WIFI_RECONNECT_ATTEMPT = 0;
 }
 
 void cbWiFiOnDisconnected(WiFiEvent_t event, WiFiEventInfo_t info)
 {
-  sprintf_P(logBuff, PSTR("WiFi (%s) Disconnected!"), WiFi.SSID().c_str());
+  sprintf_P(logBuff, PSTR("WiFi (%s) Disconnected! Attempt: %d/%d"), WiFi.SSID().c_str(), WIFI_RECONNECT_ATTEMPT, WIFI_FALLBACK_COUNTER);
   recordLog(4, PSTR(__FILE__), __LINE__, PSTR(__func__));
-  WiFi.reconnect();
+  WIFI_RECONNECT_ATTEMPT += 1;
+  if(WIFI_RECONNECT_ATTEMPT >= WIFI_FALLBACK_COUNTER)
+  {
+    if(!WIFI_IS_DEFAULT)
+    {
+      WiFi.begin(config.dssid, config.dpass);
+      WIFI_IS_DEFAULT = true;
+    }
+    else
+    {
+      WiFi.begin(config.wssid, config.wpass);
+      WIFI_IS_DEFAULT = false;
+    }
+  }
+  else
+  {
+    WiFi.reconnect();
+  }
 }
 
 void cbWiFiOnLostIp(WiFiEvent_t event, WiFiEventInfo_t info)
@@ -361,6 +384,8 @@ void configReset()
   doc["port"] = 8883;
   doc["wssid"] = wssid;
   doc["wpass"] = wpass;
+  doc["dssid"] = dssid;
+  doc["dpass"] = dpass;
   doc["upass"] = upass;
   doc["accessToken"] = accessToken;
   doc["provSent"] = false;
@@ -389,6 +414,8 @@ void configLoadFailSafe()
   strlcpy(config.broker, "prita.undiknas.ac.id", sizeof(config.broker));
   strlcpy(config.wssid, wssid, sizeof(config.wssid));
   strlcpy(config.wpass, wpass, sizeof(config.wpass));
+  strlcpy(config.dssid, dssid, sizeof(config.dssid));
+  strlcpy(config.dpass, dpass, sizeof(config.dpass));
   strlcpy(config.upass, upass, sizeof(config.upass));
   strlcpy(config.accessToken, accessToken, sizeof(config.accessToken));
   config.provSent = false;
@@ -425,6 +452,8 @@ void configLoad()
     strlcpy(config.broker, doc["broker"].as<const char*>(), sizeof(config.broker));
     strlcpy(config.wssid, doc["wssid"].as<const char*>(), sizeof(config.wssid));
     strlcpy(config.wpass, doc["wpass"].as<const char*>(), sizeof(config.wpass));
+    strlcpy(config.dssid, doc["dssid"].as<const char*>(), sizeof(config.dssid));
+    strlcpy(config.dpass, doc["dpass"].as<const char*>(), sizeof(config.dpass));
     strlcpy(config.upass, doc["upass"].as<const char*>(), sizeof(config.upass));
     strlcpy(config.accessToken, doc["accessToken"].as<const char*>(), sizeof(config.accessToken));
     config.provSent = doc["provSent"].as<bool>();
@@ -457,6 +486,8 @@ void configSave()
   doc["port"]  = config.port;
   doc["wssid"] = config.wssid;
   doc["wpass"] = config.wpass;
+  doc["dssid"] = config.dssid;
+  doc["dpass"] = config.dpass;
   doc["upass"] = config.upass;
   doc["accessToken"] = config.accessToken;
   doc["provSent"] = config.provSent;
