@@ -1009,9 +1009,13 @@ class ThingsBoardSized
 
 template<size_t PayloadSize, size_t MaxFieldsAmt, typename Logger>
 ThingsBoardSized<PayloadSize, MaxFieldsAmt, Logger> *ThingsBoardSized<PayloadSize, MaxFieldsAmt, Logger>::m_subscribedInstance;
+template<size_t PayloadSize, size_t MaxFieldsAmt, typename Logger>
 ThingsBoardSized<PayloadSize, MaxFieldsAmt, Logger> *ThingsBoardSized<PayloadSize, MaxFieldsAmt, Logger>::m_subscribedInstanceRPC;
+template<size_t PayloadSize, size_t MaxFieldsAmt, typename Logger>
 ThingsBoardSized<PayloadSize, MaxFieldsAmt, Logger> *ThingsBoardSized<PayloadSize, MaxFieldsAmt, Logger>::m_subscribedInstanceSharedAttributes;
+template<size_t PayloadSize, size_t MaxFieldsAmt, typename Logger>
 ThingsBoardSized<PayloadSize, MaxFieldsAmt, Logger> *ThingsBoardSized<PayloadSize, MaxFieldsAmt, Logger>::m_subscribedInstanceProvisioning;
+template<size_t PayloadSize, size_t MaxFieldsAmt, typename Logger>
 ThingsBoardSized<PayloadSize, MaxFieldsAmt, Logger> *ThingsBoardSized<PayloadSize, MaxFieldsAmt, Logger>::m_subscribedInstanceOTAUpdate;
 
 #if !defined(ESP8266) && !defined(ESP32)
