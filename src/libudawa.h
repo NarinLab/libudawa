@@ -105,7 +105,7 @@ void configCoMCULoad();
 void configCoMCUSave();
 void configCoMCUReset();
 bool loadFile(const char* filePath, char* buffer);
-void processProvisionResponse(const callbackData &data);
+callbackResponse processProvisionResponse(const callbackData &data);
 void recordLog(uint8_t level, const char* fileName, int, const char* functionName);
 void iotInit();
 void startup();
@@ -649,7 +649,7 @@ bool loadFile(const char* filePath, char *buffer)
   return true;
 }
 
-void processProvisionResponse(const callbackData &data)
+callbackResponse processProvisionResponse(const callbackData &data)
 {
   sprintf_P(logBuff, PSTR("Received device provision response"));
   recordLog(4, PSTR(__FILE__), __LINE__, PSTR(__func__));
