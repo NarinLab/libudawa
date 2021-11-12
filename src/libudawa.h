@@ -163,7 +163,7 @@ ny6l9/duT2POAsUN5IwHGDu8b2NT+vCUQRFVHY31
 WiFiClientSecure ssl = WiFiClientSecure();
 Config config;
 ConfigCoMCU configcomcu;
-ThingsBoard tbProvision(ssl);
+ThingsBoardSized<DOCSIZE, 64> tbProvision(ssl);
 ThingsBoardSized<DOCSIZE, 64> tb(ssl);
 volatile bool provisionResponseProcessed = false;
 
