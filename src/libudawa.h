@@ -284,7 +284,7 @@ void iotInit()
         };
         Serial.print("tbProvision:");
         Serial.println(tbProvision.connected());
-        if(tb.callbackSubscribe(cb, 2))
+        if(tbProvision.callbackSubscribe(cb, 2))
         {
           if(tbProvision.sendProvisionRequest(config.name, config.provisionDeviceKey, config.provisionDeviceSecret))
           {
