@@ -883,6 +883,7 @@ class ThingsBoardSized
 #endif
 
       for (size_t i = 0; i < sizeof(m_sharedAttributeUpdateCallbacks) / sizeof(*m_sharedAttributeUpdateCallbacks); ++i) {
+        Serial.println(i);
         if (m_sharedAttributeUpdateCallbacks[i].m_cb != nullptr) {
 
           Logger::log("Calling callbacks for updated attribute");
