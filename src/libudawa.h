@@ -662,7 +662,7 @@ callbackResponse processProvisionResponse(const callbackData &data)
     sprintf_P(logBuff, PSTR("Provision response contains the error: %s"), data["errorMsg"].as<const char*>());
     recordLog(1, PSTR(__FILE__), __LINE__, PSTR(__func__));
     provisionResponseProcessed = true;
-    return;
+    return data;
   }
   else
   {
@@ -687,6 +687,7 @@ callbackResponse processProvisionResponse(const callbackData &data)
     tbProvision.disconnect();
   }
   provisionResponseProcessed = true;
+  return data;
 }
 
 void recordLog(uint8_t level, const char* fileName, int lineNumber, const char* functionName)
