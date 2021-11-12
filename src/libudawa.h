@@ -284,12 +284,14 @@ void iotInit()
         { "provisionResponse", processProvisionResponse },
         { "provisionResponse", processProvisionResponse }
       };
-      Serial.println(tb.callbackSubscribe(cb, 2));
-      if(tbProvision.sendProvisionRequest(config.name, config.provisionDeviceKey, config.provisionDeviceSecret))
+      if(tb.callbackSubscribe(cb, 2))
       {
-        config.provSent = true;
-        sprintf_P(logBuff, PSTR("Provision request was sent!"));
-        recordLog(5, PSTR(__FILE__), __LINE__, PSTR(__func__));
+        if(tbProvision.sendProvisionRequest(config.name, config.provisionDeviceKey, config.provisionDeviceSecret))
+        {
+          config.provSent = true;
+          sprintf_P(logBuff, PSTR("Provision request was sent!"));
+          recordLog(5, PSTR(__FILE__), __LINE__, PSTR(__func__));
+        }
       }
     }
   }
