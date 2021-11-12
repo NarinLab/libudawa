@@ -684,10 +684,7 @@ void processProvisionResponse(const Provision_Data &data)
   {
     strlcpy(config.accessToken, data["credentialsValue"].as<String>().c_str(), sizeof(config.accessToken));
     configSave();
-    iotInit();
-    FLAG_IOT_SHARED_ATTRIBUTES_SUBSCRIBE = true;
-    FLAG_IOT_RPC_SUBSCRIBE = true;
-    FLAG_IOT_OTA_UPDATE_SUBSCRIBE = true;
+    reboot();
   }
   if (strncmp(data["credentialsType"], "MQTT_BASIC", strlen("MQTT_BASIC")) == 0)
   {
