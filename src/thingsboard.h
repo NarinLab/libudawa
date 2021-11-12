@@ -296,13 +296,13 @@ class ThingsBoardSized
     // Subscribes multiple Generic Callbacks with given size
     bool callbackSubscribe(const GenericCallback *callbacks, size_t callbacksSize)
     {
-      if (callbacksSize > sizeof(m_genericCallbacks) / sizeof(*m_genericCallbacks)){return false;}
-      if (ThingsBoardSized::m_subscribedInstance){return false;}
-      if (!m_client.subscribe("v1/devices/me/rpc/request/+")){return false;}
-      if (!m_client.subscribe("v1/devices/me/attributes/response/+")){return false;}
-      if (!m_client.subscribe("v1/devices/me/attributes")){return false;}
-      if (!m_client.subscribe("v2/fw/response/#")){return false;}
-      if (!m_client.subscribe("/provision/response")){return false;}
+      if (callbacksSize > sizeof(m_genericCallbacks) / sizeof(*m_genericCallbacks)){Serial.println(1);return false;}
+      if (ThingsBoardSized::m_subscribedInstance){Serial.println(2);return false;}
+      if (!m_client.subscribe("v1/devices/me/rpc/request/+")){Serial.println(3);return false;}
+      if (!m_client.subscribe("v1/devices/me/attributes/response/+")){Serial.println(4);return false;}
+      if (!m_client.subscribe("v1/devices/me/attributes")){Serial.println(5);return false;}
+      if (!m_client.subscribe("v2/fw/response/#")){Serial.println(6);return false;}
+      if (!m_client.subscribe("/provision/response")){Serial.println(7);return false;}
 
       ThingsBoardSized::m_subscribedInstance = this;
       for (size_t i = 0; i < callbacksSize; ++i) {
