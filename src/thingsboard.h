@@ -153,7 +153,7 @@ class ThingsBoardSized
       if (!host) {
         return false;
       }
-      this->genericUnsubscribe(); // Cleanup all RPC subscriptions
+      this->callbackUnsubscribe(); // Cleanup all RPC subscriptions
       if (!strcmp(access_token, "provision")) {
         provision_mode = true;
       }
@@ -314,7 +314,7 @@ class ThingsBoardSized
       return true;
     }
 
-    inline bool genericUnsubscribe()
+    inline bool callbackUnsubscribe()
     {
       bool flag1 = m_client.unsubscribe("v1/devices/me/rpc/request/+");
       bool flag2 = m_client.unsubscribe("v1/devices/me/attributes/response/+");
