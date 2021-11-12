@@ -855,7 +855,6 @@ class ThingsBoardSized
         Logger::log("Unable to de-serialize Shared attribute update request");
         return;
       }
-      serializeJsonPretty(jsonBuffer, Serial);
       JsonObject data = jsonBuffer.template as<JsonObject>();
 
       if (data && (data.size() >= 1))
@@ -884,7 +883,7 @@ class ThingsBoardSized
 #endif
 
       for (size_t i = 0; i < sizeof(m_sharedAttributeUpdateCallbacks) / sizeof(*m_sharedAttributeUpdateCallbacks); ++i) {
-        if (m_sharedAttributeUpdateCallbacks[i].m_cb) {
+        if (m_sharedAttributeUpdateCallbacks[i].m_cb != nullptr) {
 
           Logger::log("Calling callbacks for updated attribute");
 
