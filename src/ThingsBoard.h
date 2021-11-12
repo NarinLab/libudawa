@@ -870,20 +870,12 @@ class ThingsBoardSized
       // Save data for firmware update
 #if defined(ESP8266) || defined(ESP32)
       serializeJsonPretty(data, Serial);
-      if (data["fw_title"] != nullptr)
-        m_fwTitle = data["fw_title"].as<String>();
-
-      if (data["fw_version"] != nullptr)
-        m_fwVersion = data["fw_version"].as<String>();
-
-      if (data["fw_checksum"] != nullptr)
-        m_fwChecksum = data["fw_checksum"].as<String>();
-
-      if (data["fw_checksum_algorithm"] != nullptr)
-        m_fwChecksumAlgorithm = data["fw_checksum_algorithm"].as<String>();
-
-      if (data["fw_size"] != nullptr)
-        m_fwSize = data["fw_size"].as<int>();
+      Serial.println(data["fw_title"] != nullptr);
+      if (data["fw_title"] != nullptr){m_fwTitle = data["fw_title"].as<String>();}
+      if (data["fw_version"] != nullptr){m_fwVersion = data["fw_version"].as<String>();}
+      if (data["fw_checksum"] != nullptr){m_fwChecksum = data["fw_checksum"].as<String>();}
+      if (data["fw_checksum_algorithm"] != nullptr){m_fwChecksumAlgorithm = data["fw_checksum_algorithm"].as<String>();}
+      if (data["fw_size"] != nullptr){m_fwSize = data["fw_size"].as<int>();}
 #endif
 
       for (size_t i = 0; i < sizeof(m_sharedAttributeUpdateCallbacks) / sizeof(*m_sharedAttributeUpdateCallbacks); ++i) {
