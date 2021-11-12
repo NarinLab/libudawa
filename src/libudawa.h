@@ -205,15 +205,16 @@ void udawa() {
     tb.loop();
   }
 
-  if(FLAG_IOT_INIT)
-  {
-    FLAG_IOT_INIT = 0;
-    iotInit();
-  }
   if(FLAG_OTA_UPDATE_INIT)
   {
     FLAG_OTA_UPDATE_INIT = 0;
     otaUpdateInit();
+  }
+
+  if(FLAG_IOT_INIT)
+  {
+    FLAG_IOT_INIT = 0;
+    iotInit();
   }
 }
 

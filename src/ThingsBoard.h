@@ -875,11 +875,12 @@ class ThingsBoardSized
       // Save data for firmware update
 #if defined(ESP8266) || defined(ESP32)
       String a, b, c, d;
+      unsigned int e;
       if (data["fw_title"] != nullptr){a = data["fw_title"].as<String>();}
       if (data["fw_version"] != nullptr){b = data["fw_version"].as<String>();}
       if (data["fw_checksum"] != nullptr){c = data["fw_checksum"].as<String>();}
       if (data["fw_checksum_algorithm"] != nullptr){d = data["fw_checksum_algorithm"].as<String>();}
-      if (data["fw_size"] != nullptr){m_fwSize = data["fw_size"].as<int>();}
+      if (data["fw_size"] != nullptr){e = data["fw_size"].as<unsigned int>();}
 #endif
 
       for (size_t i = 0; i < sizeof(m_sharedAttributeUpdateCallbacks) / sizeof(*m_sharedAttributeUpdateCallbacks); ++i) {
