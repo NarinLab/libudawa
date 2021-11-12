@@ -85,7 +85,7 @@ class Telemetry {
 // Convenient aliases
 
 using Attribute = Telemetry;
-using RPC_Response = Telemetry;
+using callbackResponse = Telemetry;
 // JSON object is used to communicate RPC parameters to the client
 using callbackData = JsonVariant;
 using Shared_Attribute_Data = JsonObject;
@@ -98,7 +98,7 @@ class GenericCallback {
   public:
 
     // Generic Callback signature
-    using processFn = RPC_Response (*)(const callbackData &data);
+    using processFn = callbackResponse (*)(const callbackData &data);
 
     // Constructs empty callback
     inline GenericCallback()
@@ -523,7 +523,7 @@ class ThingsBoardSized
 
     // Processes RPC message
     void process_rpc_message(char* topic, uint8_t* payload, unsigned int length) {
-      RPC_Response r;
+      callbackResponse r;
       {
         StaticJsonDocument<JSON_OBJECT_SIZE(MaxFieldsAmt)> jsonBuffer;
         DeserializationError error = deserializeJson(jsonBuffer, payload, length);
