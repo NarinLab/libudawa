@@ -373,7 +373,7 @@ class ThingsBoardSized
       if (callbacks_size > sizeof(m_rpcCallbacks) / sizeof(*m_rpcCallbacks)) {
         return false;
       }
-      if (ThingsBoardSized::m_subscribedInstance) {
+      if (ThingsBoardSized::m_subscribedInstanceRPC) {
         return false;
       }
 
@@ -381,7 +381,7 @@ class ThingsBoardSized
         return false;
       }
 
-      ThingsBoardSized::m_subscribedInstance = this;
+      ThingsBoardSized::m_subscribedInstanceRPC = this;
       for (size_t i = 0; i < callbacks_size; ++i) {
         m_rpcCallbacks[i] = callbacks[i];
       }
@@ -392,7 +392,7 @@ class ThingsBoardSized
     }
 
     inline bool RPC_Unsubscribe() {
-      ThingsBoardSized::m_subscribedInstance = NULL;
+      ThingsBoardSized::m_subscribedInstanceRPC = NULL;
       return m_client.unsubscribe("v1/devices/me/rpc/request/+");
     }
 
@@ -550,7 +550,7 @@ class ThingsBoardSized
     }
 
     bool Firmware_OTA_Subscribe() {
-      if (ThingsBoardSized::m_subscribedInstance) {
+      if (ThingsBoardSized::m_subscribedInstanceOTAUpdate) {
         return false;
       }
 
@@ -565,7 +565,7 @@ class ThingsBoardSized
         return false;
       }
 
-      ThingsBoardSized::m_subscribedInstance = this;
+      ThingsBoardSized::m_subscribedInstanceOTAUpdate = this;
 
       // Set callback for receive message
       m_client.setCallback(ThingsBoardSized::on_message);
@@ -574,7 +574,7 @@ class ThingsBoardSized
     }
 
     bool Firmware_OTA_Unsubscribe() {
-      ThingsBoardSized::m_subscribedInstance = NULL;
+      ThingsBoardSized::m_subscribedInstanceOTAUpdate = NULL;
 
       // Unsubscribe at 3 topics
       if (!m_client.unsubscribe("v1/devices/me/attributes/response/+")) {
@@ -614,7 +614,7 @@ class ThingsBoardSized
       if (callbacks_size > sizeof(m_sharedAttributeUpdateCallbacks) / sizeof(*m_sharedAttributeUpdateCallbacks)) {
         return false;
       }
-      if (ThingsBoardSized::m_subscribedInstance) {
+      if (ThingsBoardSized::m_subscribedInstanceSharedAttributes) {
         return false;
       }
 
@@ -625,7 +625,7 @@ class ThingsBoardSized
         return false;
       }
 
-      ThingsBoardSized::m_subscribedInstance = this;
+      ThingsBoardSized::m_subscribedInstanceSharedAttributes = this;
       for (size_t i = 0; i < callbacks_size; ++i) {
         m_sharedAttributeUpdateCallbacks[i] = callbacks[i];
       }
@@ -636,7 +636,7 @@ class ThingsBoardSized
     }
 
     inline bool Shared_Attributes_Unsubscribe() {
-      ThingsBoardSized::m_subscribedInstance = NULL;
+      ThingsBoardSized::m_subscribedInstanceSharedAttributes = NULL;
       if (!m_client.unsubscribe("v1/devices/me/attributes/response/+")) {
         return false;
       }
@@ -654,7 +654,7 @@ class ThingsBoardSized
 #if defined(ESP8266) || defined(ESP32) || defined(ARDUINO_AVR_MEGA)
     bool Provision_Subscribe(const Provision_Callback callback) {
 
-      if (ThingsBoardSized::m_subscribedInstance) {
+      if (ThingsBoardSized::m_subscribedInstanceProvisioning) {
         return false;
       }
 
@@ -662,7 +662,7 @@ class ThingsBoardSized
         return false;
       }
 
-      ThingsBoardSized::m_subscribedInstance = this;
+      ThingsBoardSized::m_subscribedInstanceProvisioning = this;
       m_provisionCallback = callback;
       m_client.setCallback(ThingsBoardSized::on_message);
 
@@ -670,7 +670,7 @@ class ThingsBoardSized
     }
 
     bool Provision_Unsubscribe() {
-      ThingsBoardSized::m_subscribedInstance = NULL;
+      ThingsBoardSized::m_subscribedInstanceProvisioning = NULL;
       if (!m_client.unsubscribe("/provision/response")) {
         return false;
       }
@@ -971,29 +971,35 @@ class ThingsBoardSized
     // PubSub client cannot call a method when message arrives on subscribed topic.
     // Only free-standing function is allowed.
     // To be able to forward event to an instance, rather than to a function, this pointer exists.
-    static ThingsBoardSized *m_subscribedInstance;
+    static ThingsBoardSized *m_subscribedInstanceRPC;
+    static ThingsBoardSized *m_subscribedInstanceSharedAttributes;
+    static ThingsBoardSized *m_subscribedInstanceOTAUpdate;
+    static ThingsBoardSized *m_subscribedInstanceProvisioning;
 
     // The callback for when a PUBLISH message is received from the server.
-    static void on_message(char* topic, uint8_t* payload, unsigned int length) {
+    static void on_message(char* topic, uint8_t* payload, unsigned int length)
+    {
       Logger::log(String("Callback on_message from topic: " + String(topic)).c_str());
-      if (!ThingsBoardSized::m_subscribedInstance) {
-        return;
+      if (strncmp("v1/devices/me/rpc", topic, strlen("v1/devices/me/rpc")) == 0)
+      {
+        ThingsBoardSized::m_subscribedInstanceRPC->process_rpc_message(topic, payload, length);
       }
-      if (strncmp("v1/devices/me/rpc", topic, strlen("v1/devices/me/rpc")) == 0) {
-        ThingsBoardSized::m_subscribedInstance->process_rpc_message(topic, payload, length);
-      } else if (strncmp("v1/devices/me/attributes", topic, strlen("v1/devices/me/attributes")) == 0) {
-        ThingsBoardSized::m_subscribedInstance->process_shared_attribute_update_message(topic, payload, length);
-      } else {
-        if (strncmp("/provision/response", topic, strlen("/provision/response")) == 0) {
+      else if (strncmp("v1/devices/me/attributes", topic, strlen("v1/devices/me/attributes")) == 0)
+      {
+        ThingsBoardSized::m_subscribedInstanceSharedAttributes->process_shared_attribute_update_message(topic, payload, length);
+      }
+      else if (strncmp("/provision/response", topic, strlen("/provision/response")) == 0)
+      {
 #if defined(ESP8266) || defined(ESP32) || defined(ARDUINO_AVR_MEGA)
-          ThingsBoardSized::m_subscribedInstance->process_provisioning_response(topic, payload, length);
+        ThingsBoardSized::m_subscribedInstanceProvisioning->process_provisioning_response(topic, payload, length);
 #endif
-        } else if (strncmp("v2/fw/response/", topic, strlen("v2/fw/response/")) == 0) {
+      }
+      else if (strncmp("v2/fw/response/", topic, strlen("v2/fw/response/")) == 0)
+      {
 #if defined(ESP8266) || defined(ESP32)
-          ThingsBoardSized::m_subscribedInstance->process_firmware_response(topic, payload, length);
+        ThingsBoardSized::m_subscribedInstanceOTAUpdate->process_firmware_response(topic, payload, length);
 #endif
-    }
-    }
+      }
     }
 
 };
