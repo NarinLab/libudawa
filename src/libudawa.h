@@ -435,6 +435,7 @@ void configLoad()
   {
     file.close();
     configReset();
+    reboot();
     return;
   }
   else
