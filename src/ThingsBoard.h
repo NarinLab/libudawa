@@ -93,6 +93,13 @@ class Telemetry {
     bool serializeKeyval(JsonVariant &jsonObj) const;
 };
 
+#if defined(ESP8266) || defined(ESP32)
+    // For Firmware Update
+    String m_fwVersion, m_fwTitle, m_fwChecksum, m_fwChecksumAlgorithm, m_fwState;
+    unsigned int m_fwSize;
+    int m_fwChunkReceive;
+#endif
+
 // Convenient aliases
 
 using Attribute = Telemetry;
@@ -855,11 +862,12 @@ class ThingsBoardSized
         Logger::log("Unable to de-serialize Shared attribute update request");
         return;
       }
+      serializeJsonPretty(jsonBuffer, Serial);
       JsonObject data = jsonBuffer.template as<JsonObject>();
 
-      if (data && (data.size() >= 1)) {
+      if (data != nullptr && (data.size() >= 1)) {
         Logger::log("Received shared attribute update request");
-        if (data["shared"]) {
+        if (data["shared"] != nullptr) {
           data = data["shared"];
         }
       } else {
@@ -869,8 +877,6 @@ class ThingsBoardSized
 
       // Save data for firmware update
 #if defined(ESP8266) || defined(ESP32)
-      serializeJsonPretty(data, Serial);
-      Serial.println(data["fw_title"] != nullptr);
       if (data["fw_title"] != nullptr){m_fwTitle = data["fw_title"].as<String>();}
       if (data["fw_version"] != nullptr){m_fwVersion = data["fw_version"].as<String>();}
       if (data["fw_checksum"] != nullptr){m_fwChecksum = data["fw_checksum"].as<String>();}
@@ -953,13 +959,6 @@ class ThingsBoardSized
     Provision_Callback m_provisionCallback; // Provision response callback
 #endif
     unsigned int m_requestId;
-
-#if defined(ESP8266) || defined(ESP32)
-    // For Firmware Update
-    String m_fwVersion, m_fwTitle, m_fwChecksum, m_fwChecksumAlgorithm, m_fwState;
-    unsigned int m_fwSize;
-    int m_fwChunkReceive;
-#endif
 
     // PubSub client cannot call a method when message arrives on subscribed topic.
     // Only free-standing function is allowed.
