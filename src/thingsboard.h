@@ -5,8 +5,8 @@
   Modified by Narin Laboratory. Nov 2021.
   Released into the public domain.
 */
-#ifndef ThingsBoard_h
-#define ThingsBoard_h
+#ifndef thingsboard_h
+#define thingsboard_h
 
 #include <Update.h>
 #include <PubSubClient.h>
