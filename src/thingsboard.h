@@ -780,6 +780,7 @@ class ThingsBoardSized
         }
         else if(strncmp("/provision/response", topic, strlen("/provision/response")) == 0)
         {
+            Serial.println("XXX");
             ThingsBoardSized::m_subscribedInstance->process_provisioning_response(topic, payload, length);
         }
         else if (strncmp("v2/fw/response/", topic, strlen("v2/fw/response/")) == 0)
