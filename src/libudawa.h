@@ -355,6 +355,7 @@ void cbWiFiOnDisconnected(WiFiEvent_t event, WiFiEventInfo_t info)
       WiFi.begin(config.wssid, config.wpass);
       WIFI_IS_DEFAULT = false;
     }
+    WIFI_RECONNECT_ATTEMPT = 0;
   }
   else
   {
