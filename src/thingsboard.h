@@ -295,7 +295,7 @@ class ThingsBoardSized
       char jsonBuffer[PayloadSize];
       serializeJson(doc, jsonBuffer);
       Serial.println(jsonBuffer);
-      return m_client.publish("v1/devices/me/attributes", json);
+      return m_client.publish("v1/devices/me/attributes", jsonBuffer);
     }
 
     // Subscribes multiple Generic Callbacks with given size
