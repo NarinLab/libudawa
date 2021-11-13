@@ -294,7 +294,6 @@ class ThingsBoardSized
     inline bool sendAttributeDoc(StaticJsonDocument<PayloadSize> &doc) {
       char jsonBuffer[PayloadSize];
       serializeJson(doc, jsonBuffer);
-      Serial.println(jsonBuffer);
       return m_client.publish("v1/devices/me/attributes", jsonBuffer);
     }
 
