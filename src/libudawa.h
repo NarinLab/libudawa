@@ -197,7 +197,7 @@ void startup() {
   ssl.setCACert(NARIN_CERT_CA);
 
   taskManager.scheduleFixedRate(10000, [] {
-    if(WiFi.status == WL_CONNECTED && !tb.connected())
+    if(WiFi.status() == WL_CONNECTED && !tb.connected())
     {
       iotInit();
     }
