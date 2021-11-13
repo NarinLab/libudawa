@@ -22,6 +22,7 @@
 #include <StreamUtils.h>
 #include <ArduinoOTA.h>
 #include <thingsboard.h>
+#include <TaskManagerIO.h>
 
 #define countof(a) (sizeof(a) / sizeof(a[0]))
 #define DOCSIZE 1500
@@ -194,9 +195,17 @@ void startup() {
   WiFi.setAutoReconnect(true);
 
   ssl.setCACert(NARIN_CERT_CA);
+
+  taskManager.scheduleFixedRate(10000, [] {
+    if(WiFi.status == WL_CONNECTED && !tb.connected())
+    {
+      iotInit();
+    }
+  });
 }
 
 void udawa() {
+  taskManager.runLoop();
   ArduinoOTA.handle();
 
   if (!provisionResponseProcessed) {
