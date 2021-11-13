@@ -623,6 +623,7 @@ class ThingsBoardSized
         md5 = MD5Builder();
         md5.begin();
 
+        if(Update.isRunning()){Update.abort();}
         // Initialize Flash
         if (!Update.begin(m_fwSize)) {
           Logger::log("Error during Update.begin");
