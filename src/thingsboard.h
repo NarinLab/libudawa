@@ -323,9 +323,9 @@ class ThingsBoardSized
     {
       bool flag1 = m_client.unsubscribe("v1/devices/me/rpc/request/+");
       bool flag2 = m_client.unsubscribe("v1/devices/me/attributes/response/+");
-      bool flag3 = m_client.subscribe("v1/devices/me/attributes");
-      bool flag4 = m_client.subscribe("v2/fw/response/#");
-      bool flag5 = m_client.subscribe("/provision/response");
+      bool flag3 = m_client.unsubscribe("v1/devices/me/attributes");
+      bool flag4 = m_client.unsubscribe("v2/fw/response/#");
+      bool flag5 = m_client.unsubscribe("/provision/response");
       ThingsBoardSized::m_subscribedInstance = NULL;
       return (flag1 && flag2 && flag3 && flag4 && flag5);
     }
