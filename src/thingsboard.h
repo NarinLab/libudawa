@@ -287,7 +287,14 @@ class ThingsBoardSized
 
     // Sends custom JSON with attributes to the ThingsBoard.
     inline bool sendAttributeJSON(const char *json) {
+      return m_client.publish("v1/devices/me/attributes", json);
+    }
+
+    // Sends custom JSON with attributes to the ThingsBoard.
+    inline bool sendAttributeDoc(StaticJsonDocument<PayloadSize> &doc) {
       Serial.println(json);
+      char jsonBuffer[PayloadSize];
+      serializeJson(doc, jsonBuffer);
       return m_client.publish("v1/devices/me/attributes", json);
     }
 
