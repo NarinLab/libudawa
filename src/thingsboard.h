@@ -251,6 +251,12 @@ class ThingsBoardSized
       return m_client.publish("v1/devices/me/telemetry", json);
     }
 
+    inline bool sendTelemetryDoc(StaticJsonDocument<PayloadSize> &doc) {
+      char jsonBuffer[PayloadSize];
+      serializeJson(doc, jsonBuffer);
+      return m_client.publish("v1/devices/me/telemetry", jsonBuffer);
+    }
+
     //----------------------------------------------------------------------------
     // Attribute API
 
