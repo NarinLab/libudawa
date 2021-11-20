@@ -117,7 +117,7 @@ void serialReadFromCoMcu(StaticJsonDocument<DOCSIZE> &doc);
 void syncConfigCoMCU();
 void readSettings(StaticJsonDocument<DOCSIZE> &doc,const char* path);
 void writeSettings(StaticJsonDocument<DOCSIZE> &doc, const char* path);
-void setPin(uint8_t pin, char type, bool mode, uint16_t aval, bool state);
+void setCoMCUPin(uint8_t pin, char type, bool mode, uint16_t aval, bool state);
 
 static const char NARIN_CERT_CA[] PROGMEM = R"EOF(
 -----BEGIN CERTIFICATE-----
@@ -803,7 +803,7 @@ void writeSettings(StaticJsonDocument<DOCSIZE> &doc, const char* path)
   file.close();
 }
 
-void setPin(uint8_t pin, char type, bool mode, uint16_t aval, bool state)
+void setCoMCUPin(uint8_t pin, char type, bool mode, uint16_t aval, bool state)
 {
   StaticJsonDocument<DOCSIZE> doc;
   JsonObject params = doc.createNestedObject("params");
