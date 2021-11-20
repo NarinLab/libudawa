@@ -484,7 +484,11 @@ void configLoad()
 
 void configSave()
 {
-  SPIFFS.remove(configFile);
+  if(!SPIFFS.remove(configFile))
+  {
+    sprintf_P(logBuff, PSTR("Failed to delete the old configFile: %s"), configFile);
+    recordLog(1, PSTR(__FILE__), __LINE__, PSTR(__func__));
+  }
   File file = SPIFFS.open(configFile, FILE_WRITE);
   if (!file)
   {
@@ -516,7 +520,7 @@ void configSave()
 
 void configCoMCUReset()
 {
-  SPIFFS.remove(configFile);
+  SPIFFS.remove(configFileCoMCU);
   File file = SPIFFS.open(configFileCoMCU, FILE_WRITE);
   if (!file) {
     file.close();
@@ -594,7 +598,11 @@ void configCoMCULoad()
 
 void configCoMCUSave()
 {
-  SPIFFS.remove(configFile);
+  if(!SPIFFS.remove(configFileCoMCU))
+  {
+    sprintf_P(logBuff, PSTR("Failed to delete the old configFileCoMCU: %s"), configFileCoMCU);
+    recordLog(1, PSTR(__FILE__), __LINE__, PSTR(__func__));
+  }
   File file = SPIFFS.open(configFileCoMCU, FILE_WRITE);
   if (!file)
   {
@@ -625,7 +633,6 @@ void configCoMCUSave()
 
   serializeJson(doc, file);
   file.close();
-
 }
 
 void syncConfigCoMCU()
