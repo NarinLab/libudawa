@@ -799,7 +799,7 @@ void readSettings(StaticJsonDocument<DOCSIZE> &doc, const char* path)
 
 void writeSettings(StaticJsonDocument<DOCSIZE> &doc, const char* path)
 {
-  SPIFFS.remove(configFile);
+  SPIFFS.remove(path);
   File file = SPIFFS.open(path, FILE_WRITE);
   if (!file)
   {
