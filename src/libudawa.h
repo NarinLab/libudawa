@@ -176,7 +176,7 @@ void startup() {
 
   if(!SPIFFS.begin(true))
   {
-    configReset();
+    //configReset();
     configLoadFailSafe();
     sprintf_P(logBuff, PSTR("Problem with file system. Failsafe config was loaded."));
     recordLog(1, PSTR(__FILE__), __LINE__, PSTR(__func__));
@@ -447,8 +447,8 @@ void configLoad()
   if(error)
   {
     file.close();
-    configReset();
-    reboot();
+    //configReset();
+    //reboot();
     return;
   }
   else
