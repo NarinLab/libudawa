@@ -192,6 +192,10 @@ void startup() {
   WiFi.onEvent(cbWiFiOnGotIp, SYSTEM_EVENT_STA_GOT_IP);
   WiFi.mode(WIFI_STA);
   WiFi.begin(config.wssid, config.wpass);
+  if(!config.wssid || *config.wssid == 0x00 || strlen(ssconfig.wssidid) > 32) {
+      sprintf_P(logBuff, PSTR("SSID too long or missing! Failsafe config was loaded."));
+      recordLog(1, PSTR(__FILE__), __LINE__, PSTR(__func__));
+    }
   WiFi.setHostname(config.name);
   WiFi.setAutoReconnect(true);
 
@@ -460,7 +464,10 @@ void configLoad()
     sprintf_P(logBuff, PSTR("Device ID: %s"), dv);
     recordLog(4, PSTR(__FILE__), __LINE__, PSTR(__func__));
 
-    strlcpy(config.name, doc["name"].as<const char*>(), sizeof(config.name));
+
+    String name = "UDAWA" + String(dv);
+    strlcpy(config.name, name.c_str(), sizeof(config.name));
+    //strlcpy(config.name, doc["name"].as<const char*>(), sizeof(config.name));
     strlcpy(config.model, doc["model"].as<const char*>(), sizeof(config.model));
     strlcpy(config.group, doc["group"].as<const char*>(), sizeof(config.group));
     strlcpy(config.broker, doc["broker"].as<const char*>(), sizeof(config.broker));
