@@ -428,8 +428,8 @@ void configLoadFailSafe()
   String name = "UDAWA" + String(dv);
   strlcpy(config.name, name.c_str(), sizeof(config.name));
   strlcpy(config.model, "Generic", sizeof(config.model));
-  strlcpy(config.group, "PRITA", sizeof(config.group));
-  strlcpy(config.broker, "prita.undiknas.ac.id", sizeof(config.broker));
+  strlcpy(config.group, "UDAWA", sizeof(config.group));
+  strlcpy(config.broker, "iot.narin.co.id", sizeof(config.broker));
   strlcpy(config.wssid, wssid, sizeof(config.wssid));
   strlcpy(config.wpass, wpass, sizeof(config.wpass));
   strlcpy(config.dssid, dssid, sizeof(config.dssid));
