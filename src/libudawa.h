@@ -191,11 +191,12 @@ void startup() {
   WiFi.onEvent(cbWiFiOnLostIp, SYSTEM_EVENT_STA_LOST_IP);
   WiFi.onEvent(cbWiFiOnGotIp, SYSTEM_EVENT_STA_GOT_IP);
   WiFi.mode(WIFI_STA);
-  WiFi.begin(config.wssid, config.wpass);
   if(!config.wssid || *config.wssid == 0x00 || strlen(config.wssid) > 32) {
-      sprintf_P(logBuff, PSTR("SSID too long or missing! Failsafe config was loaded."));
-      recordLog(1, PSTR(__FILE__), __LINE__, PSTR(__func__));
-    }
+    configLoadFailSafe();
+    sprintf_P(logBuff, PSTR("SSID too long or missing! Failsafe config was loaded."));
+    recordLog(1, PSTR(__FILE__), __LINE__, PSTR(__func__));
+  }
+  WiFi.begin(config.wssid, config.wpass);
   WiFi.setHostname(config.name);
   WiFi.setAutoReconnect(true);
 
