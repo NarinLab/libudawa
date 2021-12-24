@@ -397,8 +397,8 @@ void configReset()
   sprintf(dv, "%s", getDeviceId());
   doc["name"] = "UDAWA" + String(dv);
   doc["model"] = "Generic";
-  doc["group"] = "PRITA";
-  doc["broker"] = "prita.undiknas.ac.id";
+  doc["group"] = "UDAWA";
+  doc["broker"] = "iot.narin.co.id";
   doc["port"] = 8883;
   doc["wssid"] = wssid;
   doc["wpass"] = wpass;
