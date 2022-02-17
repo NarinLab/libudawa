@@ -87,7 +87,7 @@ class Telemetry {
 using Attribute = Telemetry;
 using callbackResponse = Telemetry;
 // JSON object is used to communicate RPC parameters to the client
-using callbackData = JsonVariant;
+using callbackData = JsonObject;
 using Shared_Attribute_Data = JsonObject;
 using Provision_Data = JsonObject;
 
