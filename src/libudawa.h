@@ -108,6 +108,7 @@ void configCoMCUReset();
 bool loadFile(const char* filePath, char* buffer);
 callbackResponse processProvisionResponse(const callbackData &data);
 void recordLog(uint8_t level, const char* fileName, int, const char* functionName);
+void iotSendLog();
 void iotInit();
 void startup();
 void udawa();
@@ -207,6 +208,10 @@ void startup() {
     {
       iotInit();
     }
+  });
+
+  taskManager.scheduleFixedRate(1000, []{
+    iotSendLog();
   });
 }
 
@@ -748,6 +753,23 @@ void recordLog(uint8_t level, const char* fileName, int lineNumber, const char* 
     Serial.println(_logRec[_logRecIndex]);
   }
   _logRecIndex++;
+}
+
+void iotSendLog()
+{
+  for(uint8_t i = 0; i < LOG_REC_SIZE; i++)
+  {
+    if(_logRec[i][0] != 0)
+    {
+      tb.sendTelemetryString("log", _logRec[i]);
+      _logRec[i][0] = 0;
+      long now = millis();
+      while(true)
+      {
+        if((millis() - now) > 100){break;}
+      }
+    }
+  }
 }
 
 void serialWriteToCoMcu(StaticJsonDocument<DOCSIZE> &doc, bool isRpc)
