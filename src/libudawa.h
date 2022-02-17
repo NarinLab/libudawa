@@ -191,6 +191,11 @@ void startup() {
   WiFi.onEvent(cbWiFiOnLostIp, SYSTEM_EVENT_STA_LOST_IP);
   WiFi.onEvent(cbWiFiOnGotIp, SYSTEM_EVENT_STA_GOT_IP);
   WiFi.mode(WIFI_STA);
+  if(!config.wssid || *config.wssid == 0x00 || strlen(config.wssid) > 32) {
+    configLoadFailSafe();
+    sprintf_P(logBuff, PSTR("SSID too long or missing! Failsafe config was loaded."));
+    recordLog(1, PSTR(__FILE__), __LINE__, PSTR(__func__));
+  }
   WiFi.begin(config.wssid, config.wpass);
   WiFi.setHostname(config.name);
   WiFi.setAutoReconnect(true);
@@ -392,8 +397,8 @@ void configReset()
   sprintf(dv, "%s", getDeviceId());
   doc["name"] = "UDAWA" + String(dv);
   doc["model"] = "Generic";
-  doc["group"] = "PRITA";
-  doc["broker"] = "prita.undiknas.ac.id";
+  doc["group"] = "UDAWA";
+  doc["broker"] = "iot.narin.co.id";
   doc["port"] = 8883;
   doc["wssid"] = wssid;
   doc["wpass"] = wpass;
@@ -423,8 +428,8 @@ void configLoadFailSafe()
   String name = "UDAWA" + String(dv);
   strlcpy(config.name, name.c_str(), sizeof(config.name));
   strlcpy(config.model, "Generic", sizeof(config.model));
-  strlcpy(config.group, "PRITA", sizeof(config.group));
-  strlcpy(config.broker, "prita.undiknas.ac.id", sizeof(config.broker));
+  strlcpy(config.group, "UDAWA", sizeof(config.group));
+  strlcpy(config.broker, "iot.narin.co.id", sizeof(config.broker));
   strlcpy(config.wssid, wssid, sizeof(config.wssid));
   strlcpy(config.wpass, wpass, sizeof(config.wpass));
   strlcpy(config.dssid, dssid, sizeof(config.dssid));
@@ -460,7 +465,10 @@ void configLoad()
     sprintf_P(logBuff, PSTR("Device ID: %s"), dv);
     recordLog(4, PSTR(__FILE__), __LINE__, PSTR(__func__));
 
-    strlcpy(config.name, doc["name"].as<const char*>(), sizeof(config.name));
+
+    String name = "UDAWA" + String(dv);
+    strlcpy(config.name, name.c_str(), sizeof(config.name));
+    //strlcpy(config.name, doc["name"].as<const char*>(), sizeof(config.name));
     strlcpy(config.model, doc["model"].as<const char*>(), sizeof(config.model));
     strlcpy(config.group, doc["group"].as<const char*>(), sizeof(config.group));
     strlcpy(config.broker, doc["broker"].as<const char*>(), sizeof(config.broker));
