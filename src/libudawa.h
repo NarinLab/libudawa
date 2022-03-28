@@ -403,8 +403,8 @@ void configReset()
   doc["name"] = "UDAWA" + String(dv);
   doc["model"] = "Generic";
   doc["group"] = "UDAWA";
-  doc["broker"] = "iot.narin.co.id";
-  doc["port"] = 8883;
+  doc["broker"] = broker;
+  doc["port"] = port;
   doc["wssid"] = wssid;
   doc["wpass"] = wpass;
   doc["dssid"] = dssid;
@@ -434,7 +434,7 @@ void configLoadFailSafe()
   strlcpy(config.name, name.c_str(), sizeof(config.name));
   strlcpy(config.model, "Generic", sizeof(config.model));
   strlcpy(config.group, "UDAWA", sizeof(config.group));
-  strlcpy(config.broker, "iot.narin.co.id", sizeof(config.broker));
+  strlcpy(config.broker, broker, sizeof(config.broker));
   strlcpy(config.wssid, wssid, sizeof(config.wssid));
   strlcpy(config.wpass, wpass, sizeof(config.wpass));
   strlcpy(config.dssid, dssid, sizeof(config.dssid));
@@ -442,7 +442,7 @@ void configLoadFailSafe()
   strlcpy(config.upass, upass, sizeof(config.upass));
   strlcpy(config.accessToken, accessToken, sizeof(config.accessToken));
   config.provSent = false;
-  config.port = 8883;
+  config.port = port;
   strlcpy(config.provisionDeviceKey, provisionDeviceKey, sizeof(config.provisionDeviceKey));
   strlcpy(config.provisionDeviceSecret, provisionDeviceSecret, sizeof(config.provisionDeviceSecret));
   config.logLev = 5;
@@ -484,7 +484,7 @@ void configLoad()
     strlcpy(config.upass, doc["upass"].as<const char*>(), sizeof(config.upass));
     strlcpy(config.accessToken, doc["accessToken"].as<const char*>(), sizeof(config.accessToken));
     config.provSent = doc["provSent"].as<bool>();
-    config.port = doc["port"].as<uint16_t>() ? doc["port"].as<uint16_t>() : 8883;
+    config.port = doc["port"].as<uint16_t>() ? doc["port"].as<uint16_t>() : port;
     config.logLev = doc["logLev"].as<uint8_t>();
     strlcpy(config.provisionDeviceKey, doc["provisionDeviceKey"].as<const char*>(), sizeof(config.provisionDeviceKey));
     strlcpy(config.provisionDeviceSecret, doc["provisionDeviceSecret"].as<const char*>(), sizeof(config.provisionDeviceSecret));
