@@ -25,7 +25,6 @@
 #include <TaskManagerIO.h>
 
 #define countof(a) (sizeof(a) / sizeof(a[0]))
-#define DOCSIZE 1500
 #define COMPILED __DATE__ " " __TIME__
 #define LOG_REC_SIZE 30
 #define LOG_REC_LENGTH 192

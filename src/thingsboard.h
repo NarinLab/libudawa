@@ -13,7 +13,6 @@
 #include <ArduinoJson.h>
 #include "ArduinoJson/Polyfills/type_traits.hpp"
 
-#define Default_Payload 1500
 #define Default_Fields_Amt 64
 
 class ThingsBoardDefaultLogger;
