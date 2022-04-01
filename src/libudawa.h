@@ -31,6 +31,9 @@
 #define PIN_RXD2 16
 #define PIN_TXD2 17
 #define WIFI_FALLBACK_COUNTER 20
+#ifndef DOCSIZE
+  #define DOCSIZE 1500
+#endif
 
 const char* configFile = "/cfg.json";
 const char* configFileCoMCU = "/comcu.json";
