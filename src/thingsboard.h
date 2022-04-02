@@ -146,11 +146,11 @@ class ThingsBoardSized
     // Destroys ThingsBoardSized class with network client.
     inline ~ThingsBoardSized() { }
 
-    void setBufferSize(uint32_t size)
+    bool setBufferSize(uint32_t size)
     {
-      m_client.setBufferSize(size);
+      return m_client.setBufferSize(size);
     }
-    uint16_t setBufferSize()
+    uint16_t getBufferSize()
     {
       return m_client.getBufferSize();
     }
