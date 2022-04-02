@@ -353,18 +353,20 @@ void cbWifiOnConnected(WiFiEvent_t event, WiFiEventInfo_t info)
 
 void cbWiFiOnDisconnected(WiFiEvent_t event, WiFiEventInfo_t info)
 {
-  sprintf_P(logBuff, PSTR("WiFi (%s) Disconnected! Attempt: %d/%d"), WiFi.SSID().c_str(), WIFI_RECONNECT_ATTEMPT, WIFI_FALLBACK_COUNTER);
-  recordLog(4, PSTR(__FILE__), __LINE__, PSTR(__func__));
   WIFI_RECONNECT_ATTEMPT += 1;
   if(WIFI_RECONNECT_ATTEMPT >= WIFI_FALLBACK_COUNTER)
   {
     if(!WIFI_IS_DEFAULT)
     {
+      sprintf_P(logBuff, PSTR("WiFi (%s) Disconnected! Attempt: %d/%d"), config.dssid, WIFI_RECONNECT_ATTEMPT, WIFI_FALLBACK_COUNTER);
+      recordLog(4, PSTR(__FILE__), __LINE__, PSTR(__func__));
       WiFi.begin(config.dssid, config.dpass);
       WIFI_IS_DEFAULT = true;
     }
     else
     {
+      sprintf_P(logBuff, PSTR("WiFi (%s) Disconnected! Attempt: %d/%d"), config.wssid, WIFI_RECONNECT_ATTEMPT, WIFI_FALLBACK_COUNTER);
+      recordLog(4, PSTR(__FILE__), __LINE__, PSTR(__func__));
       WiFi.begin(config.wssid, config.wpass);
       WIFI_IS_DEFAULT = false;
     }
