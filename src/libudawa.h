@@ -721,7 +721,6 @@ callbackResponse processProvisionResponse(const callbackData &data)
   {
     strlcpy(config.accessToken, data["credentialsValue"].as<String>().c_str(), sizeof(config.accessToken));
     configSave();
-    reboot();
   }
   if (strncmp(data["credentialsType"], "MQTT_BASIC", strlen("MQTT_BASIC")) == 0)
   {
