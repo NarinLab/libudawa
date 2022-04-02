@@ -146,6 +146,15 @@ class ThingsBoardSized
     // Destroys ThingsBoardSized class with network client.
     inline ~ThingsBoardSized() { }
 
+    void setMaxPayloadSize(uint32_t size)
+    {
+      m_client.setBufferSize(size);
+    }
+    uint16_t getMaxPayloadSize()
+    {
+      return m_client.getBufferSize();
+    }
+
     // Connects to the specified ThingsBoard server and port.
     // Access token is used to authenticate a client.
     // Returns true on success, false otherwise.
