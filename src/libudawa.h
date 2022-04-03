@@ -113,6 +113,7 @@ void recordLog(uint8_t level, const char* fileName, int, const char* functionNam
 void iotSendLog();
 void iotInit();
 void startup();
+void networkInit();
 void udawa();
 void otaUpdateInit();
 void serialWriteToCoMcu(StaticJsonDocument<DOCSIZE> &doc, bool isRpc);
@@ -188,7 +189,10 @@ void startup() {
   {
     configLoad();
   }
+}
 
+void networkInit()
+{
   WiFi.onEvent(cbWifiOnConnected, SYSTEM_EVENT_STA_CONNECTED);
   WiFi.onEvent(cbWiFiOnDisconnected, SYSTEM_EVENT_STA_DISCONNECTED);
   WiFi.onEvent(cbWiFiOnLostIp, SYSTEM_EVENT_STA_LOST_IP);
