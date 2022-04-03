@@ -400,7 +400,17 @@ void cbWiFiOnGotIp(WiFiEvent_t event, WiFiEventInfo_t info)
 
 void configReset()
 {
-  SPIFFS.remove(configFile);
+  bool formatted = SPIFFS.format();
+  if(formatted)
+  {
+    sprintf_P(logBuff, PSTR("SPIFFS formatting success."));
+    recordLog(3, PSTR(__FILE__), __LINE__, PSTR(__func__));
+  }
+  else
+  {
+    sprintf_P(logBuff, PSTR("SPIFFS formatting failed."));
+    recordLog(3, PSTR(__FILE__), __LINE__, PSTR(__func__));
+  }
   File file = SPIFFS.open(configFile, FILE_WRITE);
   if (!file) {
     file.close();
@@ -471,7 +481,6 @@ void configLoad()
     sprintf_P(logBuff, PSTR("*** Failed to load config file! *** (%s)"), configFile);
     recordLog(1, PSTR(__FILE__), __LINE__, PSTR(__func__));
     configReset();
-    reboot();
     return;
   }
   else
