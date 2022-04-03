@@ -468,9 +468,10 @@ void configReset()
     }
     else
     {
-      sprintf_P(logBuff, PSTR("Config file size is normal: %d, trying to call configLoad..."), file.size());
+      sprintf_P(logBuff, PSTR("Config file size is normal: %d, trying to reboot..."), file.size());
       recordLog(1, PSTR(__FILE__), __LINE__, PSTR(__func__));
-      configLoad();
+      file.close();
+      reboot();
     }
   }
   file.close();
