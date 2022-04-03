@@ -32,7 +32,7 @@
 #define PIN_TXD2 17
 #define WIFI_FALLBACK_COUNTER 20
 #ifndef DOCSIZE
-  #define DOCSIZE 1500
+  #define DOCSIZE 1024
 #endif
 
 const char* configFile = "/cfg.json";
@@ -481,7 +481,7 @@ void configLoad()
   if(error)
   {
     file.close();
-    sprintf_P(logBuff, PSTR("*** Failed to load config file! *** (%s: %s)"), configFile, error.c_str());
+    sprintf_P(logBuff, PSTR("Failed to load config file! (%s - %s - %d)"), configFile, error.c_str(), file.size());
     recordLog(1, PSTR(__FILE__), __LINE__, PSTR(__func__));
     configReset();
     return;
