@@ -502,16 +502,32 @@ void configLoadFailSafe()
 
 void configLoad()
 {
-  File file = SPIFFS.open(configFile);
+  File file = SPIFFS.open(configFile, FILE_WRITE);
+  sprintf_P(logBuff, PSTR("Loading config file."));
+  recordLog(5, PSTR(__FILE__), __LINE__, PSTR(__func__));
+  if(file.size() > 0)
+  {
+    sprintf_P(logBuff, PSTR("Config file size is normal: %d, trying to fit it in %d docsize."), file.size(), DOCSIZE);
+    recordLog(5, PSTR(__FILE__), __LINE__, PSTR(__func__));
+  }
+  else
+  {
+    file.close();
+    sprintf_P(logBuff, PSTR("Config file size is abnormal: %d. Closing file and trying to reset..."), file.size());
+    recordLog(1, PSTR(__FILE__), __LINE__, PSTR(__func__));
+    configReset();
+    return;
+  }
+
   StaticJsonDocument<DOCSIZE> doc;
   DeserializationError error = deserializeJson(doc, file);
 
   if(error)
   {
     file.close();
-    sprintf_P(logBuff, PSTR("Failed to load config file! (%s - %s - %d)"), configFile, error.c_str(), file.size());
+    sprintf_P(logBuff, PSTR("Failed to load config file! (%s - %s - %d). Falling back to failsafe."), configFile, error.c_str(), file.size());
     recordLog(1, PSTR(__FILE__), __LINE__, PSTR(__func__));
-    configReset();
+    configLoadFailSafe();
     return;
   }
   else
