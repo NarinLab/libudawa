@@ -412,7 +412,8 @@ void configReset()
     sprintf_P(logBuff, PSTR("SPIFFS formatting failed."));
     recordLog(3, PSTR(__FILE__), __LINE__, PSTR(__func__));
   }
-  File file = SPIFFS.open(configFile, FILE_WRITE);
+  File file;
+  file = SPIFFS.open(configFile, FILE_WRITE);
   if (!file) {
     sprintf_P(logBuff, PSTR("Failed to create config file. Config reset is cancelled."));
     recordLog(1, PSTR(__FILE__), __LINE__, PSTR(__func__));
@@ -442,6 +443,20 @@ void configReset()
 
   size_t size = serializeJson(doc, file);
   file.close();
+
+  sprintf_P(logBuff, PSTR("Checking resetted config file is written successfully..."), size);
+  recordLog(5, PSTR(__FILE__), __LINE__, PSTR(__func__));
+  file = SPIFFS.open(configFile, FILE_WRITE);
+  if (!file)
+  {
+    sprintf_P(logBuff, PSTR("Failed to open the config file!"), size);
+    recordLog(5, PSTR(__FILE__), __LINE__, PSTR(__func__));
+  }
+  else
+  {
+    sprintf_P(logBuff, PSTR("New config file opened successfully, size: %d"), file.size());
+    recordLog(5, PSTR(__FILE__), __LINE__, PSTR(__func__));
+  }
 
   sprintf_P(logBuff, PSTR("Config hard reset (%d written):"), size);
   recordLog(4, PSTR(__FILE__), __LINE__, PSTR(__func__));
