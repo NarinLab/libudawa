@@ -203,8 +203,8 @@ void networkInit()
   WiFi.mode(WIFI_STA);
   if(!config.wssid || *config.wssid == 0x00 || strlen(config.wssid) > 32)
   {
-    //configLoadFailSafe();
-    sprintf_P(logBuff, PSTR("SSID too long or missing!"));
+    configLoadFailSafe();
+    sprintf_P(logBuff, PSTR("SSID too long or missing! Failsafe config was loaded."));
     recordLog(1, PSTR(__FILE__), __LINE__, PSTR(__func__));
   }
   WiFi.begin(config.wssid, config.wpass);
