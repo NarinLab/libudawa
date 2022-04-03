@@ -178,6 +178,7 @@ void startup() {
   Serial.begin(115200);
   Serial2.begin(115200, SERIAL_8N1, PIN_RXD2, PIN_TXD2);
 
+  config.logLev = 5;
   if(!SPIFFS.begin(true))
   {
     //configReset();
