@@ -444,7 +444,7 @@ void configReset()
   size_t size = serializeJson(doc, file);
   file.close();
 
-  sprintf_P(logBuff, PSTR("Verifiying resetted config file is written successfully..."));
+  sprintf_P(logBuff, PSTR("Verifiying resetted config file (size: %d) is written successfully..."), size);
   recordLog(5, PSTR(__FILE__), __LINE__, PSTR(__func__));
   file = SPIFFS.open(configFile, FILE_WRITE);
   if (!file)
