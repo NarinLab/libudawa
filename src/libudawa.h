@@ -444,7 +444,7 @@ void configReset()
   size_t size = serializeJson(doc, file);
   file.close();
 
-  sprintf_P(logBuff, PSTR("Checking resetted config file is written successfully..."), size);
+  sprintf_P(logBuff, PSTR("Verifiying resetted config file is written successfully..."), size);
   recordLog(5, PSTR(__FILE__), __LINE__, PSTR(__func__));
   file = SPIFFS.open(configFile, FILE_WRITE);
   if (!file)
@@ -454,13 +454,20 @@ void configReset()
   }
   else
   {
-    sprintf_P(logBuff, PSTR("New config file opened successfully, size: %d"), file.size());
+    sprintf_P(logBuff, PSTR("New config file opened, size: %d"), file.size());
     recordLog(5, PSTR(__FILE__), __LINE__, PSTR(__func__));
-  }
 
-  sprintf_P(logBuff, PSTR("Config hard reset (%d written):"), size);
-  recordLog(4, PSTR(__FILE__), __LINE__, PSTR(__func__));
-  serializeJsonPretty(doc, Serial);
+    if(file.size() < 1)
+    {
+      sprintf_P(logBuff, PSTR("Config file size is abnormal: %d, trying to rewrite..."), file.size());
+      recordLog(1, PSTR(__FILE__), __LINE__, PSTR(__func__));
+
+      size_t size = serializeJson(doc, file);
+      sprintf_P(logBuff, PSTR("Writing: %d of data, file size: %d"), size, file.size());
+      recordLog(1, PSTR(__FILE__), __LINE__, PSTR(__func__));
+    }
+  }
+  file.close();
 }
 
 void configLoadFailSafe()
