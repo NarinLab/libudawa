@@ -506,7 +506,7 @@ void configLoad()
   File file = SPIFFS.open(configFile, FILE_WRITE);
   sprintf_P(logBuff, PSTR("Loading config file."));
   recordLog(5, PSTR(__FILE__), __LINE__, PSTR(__func__));
-  if(file.size() > 0)
+  if(file.size() > 1)
   {
     sprintf_P(logBuff, PSTR("Config file size is normal: %d, trying to fit it in %d docsize."), file.size(), DOCSIZE);
     recordLog(5, PSTR(__FILE__), __LINE__, PSTR(__func__));
