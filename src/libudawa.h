@@ -413,6 +413,8 @@ void configReset()
   }
   File file = SPIFFS.open(configFile, FILE_WRITE);
   if (!file) {
+    sprintf_P(logBuff, PSTR("Failed to create config file. Config reset is cancelled."));
+    recordLog(1, PSTR(__FILE__), __LINE__, PSTR(__func__));
     file.close();
     return;
   }
@@ -437,10 +439,10 @@ void configReset()
   doc["provisionDeviceSecret"] = provisionDeviceSecret;
   doc["logLev"] = 5;
 
-  serializeJson(doc, file);
+  size_t size = serializeJson(doc, file);
   file.close();
 
-  sprintf_P(logBuff, PSTR("Config hard reset:"));
+  sprintf_P(logBuff, PSTR("Config hard reset (%d written):"), size);
   recordLog(4, PSTR(__FILE__), __LINE__, PSTR(__func__));
   serializeJsonPretty(doc, Serial);
 }
