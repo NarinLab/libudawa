@@ -444,12 +444,12 @@ void configReset()
   size_t size = serializeJson(doc, file);
   file.close();
 
-  sprintf_P(logBuff, PSTR("Verifiying resetted config file is written successfully..."), size);
+  sprintf_P(logBuff, PSTR("Verifiying resetted config file is written successfully..."));
   recordLog(5, PSTR(__FILE__), __LINE__, PSTR(__func__));
   file = SPIFFS.open(configFile, FILE_WRITE);
   if (!file)
   {
-    sprintf_P(logBuff, PSTR("Failed to open the config file!"), size);
+    sprintf_P(logBuff, PSTR("Failed to open the config file!"));
     recordLog(5, PSTR(__FILE__), __LINE__, PSTR(__func__));
   }
   else
@@ -465,6 +465,12 @@ void configReset()
       size_t size = serializeJson(doc, file);
       sprintf_P(logBuff, PSTR("Writing: %d of data, file size: %d"), size, file.size());
       recordLog(1, PSTR(__FILE__), __LINE__, PSTR(__func__));
+    }
+    else
+    {
+      sprintf_P(logBuff, PSTR("Config file size is normal: %d, trying to call configLoad..."), file.size());
+      recordLog(1, PSTR(__FILE__), __LINE__, PSTR(__func__));
+      configLoad();
     }
   }
   file.close();
