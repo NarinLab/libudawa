@@ -481,7 +481,7 @@ void configLoad()
   if(error)
   {
     file.close();
-    sprintf_P(logBuff, PSTR("*** Failed to load config file! *** (%s)"), configFile);
+    sprintf_P(logBuff, PSTR("*** Failed to load config file! *** (%s: %s)"), configFile, error.c_str());
     recordLog(1, PSTR(__FILE__), __LINE__, PSTR(__func__));
     configReset();
     return;
