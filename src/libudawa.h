@@ -525,9 +525,9 @@ void configLoad()
 
   if(error)
   {
-    file.close();
     sprintf_P(logBuff, PSTR("Failed to load config file! (%s - %s - %d). Falling back to failsafe."), configFile, error.c_str(), file.size());
     recordLog(1, PSTR(__FILE__), __LINE__, PSTR(__func__));
+    file.close();
     configLoadFailSafe();
     return;
   }
