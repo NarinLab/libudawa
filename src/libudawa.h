@@ -446,7 +446,7 @@ void configReset()
 
   sprintf_P(logBuff, PSTR("Verifiying resetted config file (size: %d) is written successfully..."), size);
   recordLog(5, PSTR(__FILE__), __LINE__, PSTR(__func__));
-  file = SPIFFS.open(configFile, FILE_WRITE);
+  file = SPIFFS.open(configFile, FILE_READ);
   if (!file)
   {
     sprintf_P(logBuff, PSTR("Failed to open the config file!"));
@@ -503,7 +503,7 @@ void configLoadFailSafe()
 
 void configLoad()
 {
-  File file = SPIFFS.open(configFile, FILE_WRITE);
+  File file = SPIFFS.open(configFile, FILE_READ);
   sprintf_P(logBuff, PSTR("Loading config file."));
   recordLog(5, PSTR(__FILE__), __LINE__, PSTR(__func__));
   if(file.size() > 1)
