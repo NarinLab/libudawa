@@ -202,8 +202,8 @@ void networkInit()
   WiFi.onEvent(cbWiFiOnGotIp, SYSTEM_EVENT_STA_GOT_IP);
   WiFi.mode(WIFI_STA);
   if(!config.wssid || *config.wssid == 0x00 || strlen(config.wssid) > 32) {
-    configLoadFailSafe();
-    sprintf_P(logBuff, PSTR("SSID too long or missing! Failsafe config was loaded."));
+    //configLoadFailSafe();
+    sprintf_P(logBuff, PSTR("SSID too long or missing!"));
     recordLog(1, PSTR(__FILE__), __LINE__, PSTR(__func__));
   }
   WiFi.begin(config.wssid, config.wpass);
