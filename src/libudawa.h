@@ -468,8 +468,10 @@ void configLoad()
   if(error)
   {
     file.close();
-    //configReset();
-    //reboot();
+    sprintf_P(logBuff, PSTR("*** Failed to load config file! *** (%s)"), configFile);
+    recordLog(1, PSTR(__FILE__), __LINE__, PSTR(__func__));
+    configReset();
+    reboot();
     return;
   }
   else
