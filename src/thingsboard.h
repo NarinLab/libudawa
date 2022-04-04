@@ -150,7 +150,7 @@ class ThingsBoardSized
     {
       return m_client.setBufferSize(size);
     }
-    uint16_t getBufferSize()
+    uint32_t getBufferSize()
     {
       return m_client.getBufferSize();
     }
