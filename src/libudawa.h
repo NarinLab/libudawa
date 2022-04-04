@@ -176,7 +176,9 @@ volatile bool provisionResponseProcessed = false;
 void startup() {
   // put your setup code here, to run once:
   Serial.begin(115200);
-  Serial2.begin(115200, SERIAL_8N1, PIN_RXD2, PIN_TXD2);
+  #ifdef USE_SERIAL2
+    Serial2.begin(115200, SERIAL_8N1, PIN_RXD2, PIN_TXD2);
+  #endif
 
   config.logLev = 5;
   if(!SPIFFS.begin(true))
