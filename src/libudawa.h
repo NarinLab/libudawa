@@ -832,7 +832,10 @@ void iotSendLog()
   {
     if(_logRec[i][0] != 0)
     {
-      tb.sendTelemetryString("log", _logRec[i]);
+      StaticJsonDocument<DOCSIZE> doc;
+      doc["log"] = _logRec[i];
+      tb.sendTelemetryDoc(doc);
+      doc.clear();
       _logRec[i][0] = 0;
       long now = millis();
       while(true)
