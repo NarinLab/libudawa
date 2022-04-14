@@ -9,9 +9,8 @@
 #define thingsboard_h
 
 #include <Update.h>
-#include <PubSubClient.h>
+#include <MQTT.h>
 #include <ArduinoJson.h>
-#include "ArduinoJson/Polyfills/type_traits.hpp"
 
 #define Default_Payload 1500
 #define Default_Fields_Amt 64
@@ -127,12 +126,12 @@ template<size_t PayloadSize = Default_Payload,
 class ThingsBoardSized
 {
 
-    bool provision_mode = false;
+  bool provision_mode = false;
 
   public:
     // Initializes ThingsBoardSized class with network client.
-    inline ThingsBoardSized(Client &client)
-      : m_client(client)
+    inline ThingsBoardSized()
+      : m_client()
       , m_requestId(0)
       , m_fwVersion("")
       , m_fwTitle("")
@@ -141,24 +140,15 @@ class ThingsBoardSized
       , m_fwState("")
       , m_fwSize(0)
       , m_fwChunkReceive(-1)
-    { }
+    {}
 
     // Destroys ThingsBoardSized class with network client.
     inline ~ThingsBoardSized() { }
 
-    bool setBufferSize(uint16_t size)
-    {
-      return m_client.setBufferSize(size);
-    }
-    uint16_t getBufferSize()
-    {
-      return m_client.getBufferSize();
-    }
-
     // Connects to the specified ThingsBoard server and port.
     // Access token is used to authenticate a client.
     // Returns true on success, false otherwise.
-    bool connect(const char *host, const char *access_token = "provision", int port = 1883, const char *client_id = "TbDev", const char *password = NULL) {
+    bool connect(Client &client, const char *host, const char *access_token = "provision", int port = 1883, const char *client_id = "TbDev", const char *password = NULL) {
       if (!host) {
         return false;
       }
@@ -166,7 +156,7 @@ class ThingsBoardSized
       if (!strcmp(access_token, "provision")) {
         provision_mode = true;
       }
-      m_client.setServer(host, port);
+      m_client.begin(host, port, client);
       bool connection_result = m_client.connect(client_id, access_token, password);
       return connection_result;
     }
@@ -266,7 +256,7 @@ class ThingsBoardSized
         m_genericCallbacks[i] = callbacks[i];
       }
 
-      m_client.setCallback(ThingsBoardSized::on_message);
+      m_client.onMessageAdvanced(ThingsBoardSized::on_message);
 
       return true;
     }
@@ -345,12 +335,6 @@ class ThingsBoardSized
       int numberOfChunk = int(m_fwSize / chunkSize) + 1;
       int currChunk = 0;
       int nbRetry = 3;
-
-      // Increase size of receive buffer
-      if (!m_client.setBufferSize(chunkSize + 50)) {
-        Logger::log("Not enough RAM");
-        return false;
-      }
 
       // Update state
       Firmware_Send_State("DOWNLOADING");
@@ -681,7 +665,7 @@ class ThingsBoardSized
       }
     }
 
-    PubSubClient m_client;              // PubSub MQTT client instance.
+    MQTTClient  m_client;              // PubSub MQTT client instance.
     GenericCallback m_genericCallbacks[8];     // Generic Callbacks array
     unsigned int m_requestId;
 
@@ -696,8 +680,9 @@ class ThingsBoardSized
     static ThingsBoardSized *m_subscribedInstance;
 
     // The callback for when a PUBLISH message is received from the server.
-    static void on_message(char* topic, uint8_t* payload, unsigned int length)
+    static void on_message(MQTTClient *client, char topic[], char bytes[], int length)
     {
+        uint8_t * payload = reinterpret_cast<uint8_t*>(bytes);
         Logger::log(String("Callback on_message from topic: " + String(topic)).c_str());
         if (!ThingsBoardSized::m_subscribedInstance){return;}
 

@@ -162,15 +162,11 @@ ny6l9/duT2POAsUN5IwHGDu8b2NT+vCUQRFVHY31
 -----END CERTIFICATE-----
 )EOF";
 
-
-
-
-
 WiFiClientSecure ssl = WiFiClientSecure();
 Config config;
 ConfigCoMCU configcomcu;
-ThingsBoardSized<DOCSIZE, 64> tbProvision(ssl);
-ThingsBoardSized<DOCSIZE, 64> tb(ssl);
+ThingsBoardSized<DOCSIZE, 64> tbProvision;
+ThingsBoardSized<DOCSIZE, 64> tb;
 volatile bool provisionResponseProcessed = false;
 
 void startup() {
@@ -305,7 +301,7 @@ void iotInit()
     {
       sprintf_P(logBuff, PSTR("Starting provision initiation to %s:%d"),  config.broker, config.port);
       recordLog(4, PSTR(__FILE__), __LINE__, PSTR(__func__));
-      if(tbProvision.connect(config.broker, "provision", config.port))
+      if(tbProvision.connect(ssl, config.broker, "provision", config.port))
       {
         sprintf_P(logBuff, PSTR("Connected to provisioning server: %s:%d"),  config.broker, config.port);
         recordLog(5, PSTR(__FILE__), __LINE__, PSTR(__func__));
@@ -338,7 +334,7 @@ void iotInit()
     {
       sprintf_P(logBuff, PSTR("Connecting to broker %s:%d"), config.broker, config.port);
       recordLog(5, PSTR(__FILE__), __LINE__, PSTR(__func__));
-      if(!tb.connect(config.broker, config.accessToken, config.port))
+      if(!tb.connect(ssl, config.broker, config.accessToken, config.port))
       {
         sprintf_P(logBuff, PSTR("Failed to connect to IoT Broker %s"), config.broker);
         recordLog(1, PSTR(__FILE__), __LINE__, PSTR(__func__));
