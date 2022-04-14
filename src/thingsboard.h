@@ -146,6 +146,19 @@ class ThingsBoardSized
     // Destroys ThingsBoardSized class with network client.
     inline ~ThingsBoardSized() { }
 
+    bool beginPublish(const char* topic, unsigned int plength, boolean retained){
+      return m_client.beginPublish(topic, plength, retained);
+    }
+    // Finish off this publish message (started with beginPublish)
+    // Returns 1 if the packet was sent successfully, 0 if there was an error
+    int endPublish(){
+      return m_client.endPublish();
+    }
+    // Write a single byte of payload (only to be used with beginPublish/endPublish)
+    virtual size_t write(uint8_t data){
+      return m_client.write(data);
+    }
+
     bool setBufferSize(uint16_t size)
     {
       return m_client.setBufferSize(size);
