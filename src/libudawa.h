@@ -9,7 +9,6 @@
 #ifndef libudawa_h
 #define libudawa_h
 
-#include <secret.h>
 #include <esp32-hal-log.h>
 #include <esp_int_wdt.h>
 #include <esp_task_wdt.h>
