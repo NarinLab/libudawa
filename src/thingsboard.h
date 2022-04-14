@@ -9,7 +9,7 @@
 #define thingsboard_h
 
 #include <Update.h>
-#include <PubSubClient.h>
+#include <AsyncMqttClient.h>
 #include <ArduinoJson.h>
 #include "ArduinoJson/Polyfills/type_traits.hpp"
 
@@ -130,9 +130,8 @@ class ThingsBoardSized
     bool provision_mode = false;
 
   public:
-    // Initializes ThingsBoardSized class with network client.
-    inline ThingsBoardSized(Client &client)
-      : m_client(client)
+    inline ThingsBoardSized()
+      : m_client()
       , m_requestId(0)
       , m_fwVersion("")
       , m_fwTitle("")
@@ -146,15 +145,6 @@ class ThingsBoardSized
     // Destroys ThingsBoardSized class with network client.
     inline ~ThingsBoardSized() { }
 
-    bool setBufferSize(uint16_t size)
-    {
-      return m_client.setBufferSize(size);
-    }
-    uint16_t getBufferSize()
-    {
-      return m_client.getBufferSize();
-    }
-
     // Connects to the specified ThingsBoard server and port.
     // Access token is used to authenticate a client.
     // Returns true on success, false otherwise.
@@ -166,8 +156,17 @@ class ThingsBoardSized
       if (!strcmp(access_token, "provision")) {
         provision_mode = true;
       }
+
+      #if ASYNC_TCP_SSL_ENABLED
+        mqttClient.setSecure(ASYNC_TCP_SSL_ENABLED);
+        mqttClient.addServerFingerprint((const uint8_t[])MQTT_SERVER_FINGERPRINT);
+      #endif
+
+      m_client.setClientId(client_id);
       m_client.setServer(host, port);
-      bool connection_result = m_client.connect(client_id, access_token, password);
+      m_client.setCredentials(access_token, password);
+      m_client.connect();
+      bool connection_result = m_client.connected();
       return connection_result;
     }
 
@@ -179,11 +178,6 @@ class ThingsBoardSized
     // Returns true if connected, false otherwise.
     inline bool connected() {
       return m_client.connected();
-    }
-
-    // Executes an event loop for PubSub client.
-    inline void loop() {
-      m_client.loop();
     }
 
     //----------------------------------------------------------------------------
@@ -218,7 +212,7 @@ class ThingsBoardSized
 
       Logger::log("Provision request:");
       Logger::log(requestPayload);
-      return m_client.publish("/provision/request", requestPayload);
+      return m_client.publish("/provision/request", 0, false, requestPayload);
     }
     //----------------------------------------------------------------------------
     // Telemetry API
@@ -257,13 +251,13 @@ class ThingsBoardSized
 
     // Sends custom JSON telemetry string to the ThingsBoard.
     inline bool sendTelemetryJson(const char *json) {
-      return m_client.publish("v1/devices/me/telemetry", json);
+      return m_client.publish("v1/devices/me/telemetry", 0, false, json);
     }
 
     inline bool sendTelemetryDoc(StaticJsonDocument<PayloadSize> &doc) {
       char jsonBuffer[PayloadSize];
       serializeJson(doc, jsonBuffer);
-      return m_client.publish("v1/devices/me/telemetry", jsonBuffer);
+      return m_client.publish("v1/devices/me/telemetry", 0, false, jsonBuffer);
     }
 
     //----------------------------------------------------------------------------
@@ -302,14 +296,14 @@ class ThingsBoardSized
 
     // Sends custom JSON with attributes to the ThingsBoard.
     inline bool sendAttributeJSON(const char *json) {
-      return m_client.publish("v1/devices/me/attributes", json);
+      return m_client.publish("v1/devices/me/attributes", 0, false, json);
     }
 
     // Sends custom JSON with attributes to the ThingsBoard.
     inline bool sendAttributeDoc(StaticJsonDocument<PayloadSize> &doc) {
       char jsonBuffer[PayloadSize];
       serializeJson(doc, jsonBuffer);
-      return m_client.publish("v1/devices/me/attributes", jsonBuffer);
+      return m_client.publish("v1/devices/me/attributes", 0, false, jsonBuffer);
     }
 
     // Subscribes multiple Generic Callbacks with given size
@@ -317,18 +311,18 @@ class ThingsBoardSized
     {
       if (callbacksSize > sizeof(m_genericCallbacks) / sizeof(*m_genericCallbacks)){return false;}
       if (ThingsBoardSized::m_subscribedInstance){return false;}
-      if (!m_client.subscribe("/provision/response")){return false;}
-      if (!m_client.subscribe("v1/devices/me/rpc/request/+")){return false;}
-      if (!m_client.subscribe("v1/devices/me/attributes/response/+")){return false;}
-      if (!m_client.subscribe("v1/devices/me/attributes")){return false;}
-      if (!m_client.subscribe("v2/fw/response/#")){return false;}
+      if (!m_client.subscribe("/provision/response", 0)){return false;}
+      if (!m_client.subscribe("v1/devices/me/rpc/request/+", 0)){return false;}
+      if (!m_client.subscribe("v1/devices/me/attributes/response/+", 0)){return false;}
+      if (!m_client.subscribe("v1/devices/me/attributes", 0)){return false;}
+      if (!m_client.subscribe("v2/fw/response/#", 0)){return false;}
 
       ThingsBoardSized::m_subscribedInstance = this;
       for (size_t i = 0; i < callbacksSize; ++i) {
         m_genericCallbacks[i] = callbacks[i];
       }
 
-      m_client.setCallback(ThingsBoardSized::on_message);
+      m_client.onMessage(ThingsBoardSized::on_message);
 
       return true;
     }
@@ -408,18 +402,12 @@ class ThingsBoardSized
       int currChunk = 0;
       int nbRetry = 3;
 
-      // Increase size of receive buffer
-      if (!m_client.setBufferSize(chunkSize + 50)) {
-        Logger::log("Not enough RAM");
-        return false;
-      }
-
       // Update state
       Firmware_Send_State("DOWNLOADING");
 
       // Download the firmware
       do {
-        m_client.publish(String("v2/fw/request/0/chunk/" + String(currChunk)).c_str(), String(chunkSize).c_str());
+        m_client.publish(String("v2/fw/request/0/chunk/" + String(currChunk)).c_str(), 0, false, String(chunkSize).c_str());
 
         timeout = millis() + 3000;
         do {
@@ -510,7 +498,7 @@ class ThingsBoardSized
 
       m_requestId++;
 
-      return m_client.publish(String("v1/devices/me/attributes/request/" + String(m_requestId)).c_str(), buffer);
+      return m_client.publish(String("v1/devices/me/attributes/request/" + String(m_requestId)).c_str(), 0, false, buffer);
     }
     // -------------------------------------------------------------------------------
     // Provisioning API
@@ -541,7 +529,7 @@ class ThingsBoardSized
     }
 
     // Processes RPC message
-    void process_rpc_message(char* topic, uint8_t* payload, unsigned int length) {
+    void process_rpc_message(char* topic, char* payload, unsigned int length) {
       callbackResponse r;
       {
         StaticJsonDocument<JSON_OBJECT_SIZE(MaxFieldsAmt)> jsonBuffer;
@@ -614,11 +602,11 @@ class ThingsBoardSized
       responseTopic.replace("request", "response");
       Logger::log("response:");
       Logger::log(responsePayload);
-      m_client.publish(responseTopic.c_str(), responsePayload);
+      m_client.publish(responseTopic.c_str(), 0, false, responsePayload);
     }
 
     // Processes firmware response
-    void process_firmware_response(char* topic, uint8_t* payload, unsigned int length) {
+    void process_firmware_response(char* topic, char* payload, unsigned int length) {
       static unsigned int sizeReceive = 0;
       static MD5Builder md5;
 
@@ -642,14 +630,15 @@ class ThingsBoardSized
       }
 
       // Write data to Flash
-      if (Update.write(payload, length) != length) {
+      unsigned char* payload_data = reinterpret_cast<unsigned char*>(payload);
+      if (Update.write(payload_data, length) != length) {
         Logger::log("Error during Update.write");
         m_fwState = "UPDATE ERROR";
         return;
       }
 
       // Update value only if write flash success
-      md5.add(payload, length);
+      md5.add(payload);
       sizeReceive += length;
 
       // Receive Full Firmware
@@ -679,7 +668,7 @@ class ThingsBoardSized
     }
 
     // Processes shared attribute update message
-    void process_shared_attribute_update_message(char* topic, uint8_t* payload, unsigned int length) {
+    void process_shared_attribute_update_message(char* topic, char* payload, unsigned int length) {
       StaticJsonDocument<JSON_OBJECT_SIZE(MaxFieldsAmt)> jsonBuffer;
       DeserializationError error = deserializeJson(jsonBuffer, payload, length);
       if (error) {
@@ -719,7 +708,7 @@ class ThingsBoardSized
     }
 
     // Processes provisioning response
-    void process_provisioning_response(char* topic, uint8_t* payload, unsigned int length) {
+    void process_provisioning_response(char* topic, char* payload, unsigned int length) {
       Logger::log("Process provisioning response");
 
       StaticJsonDocument<JSON_OBJECT_SIZE(MaxFieldsAmt)> jsonBuffer;
@@ -770,7 +759,7 @@ class ThingsBoardSized
       return telemetry ? sendTelemetryJson(payload) : sendAttributeJSON(payload);
     }
 
-    PubSubClient m_client;              // PubSub MQTT client instance.
+    AsyncMqttClient  m_client;              // PubSub MQTT client instance.
     GenericCallback m_genericCallbacks[8];     // Generic Callbacks array
     unsigned int m_requestId;
 
@@ -785,7 +774,7 @@ class ThingsBoardSized
     static ThingsBoardSized *m_subscribedInstance;
 
     // The callback for when a PUBLISH message is received from the server.
-    static void on_message(char* topic, uint8_t* payload, unsigned int length)
+    static void on_message(char* topic, char* payload, AsyncMqttClientMessageProperties properties, size_t length, size_t index, size_t total)
     {
         Logger::log(String("Callback on_message from topic: " + String(topic)).c_str());
         if (!ThingsBoardSized::m_subscribedInstance){return;}

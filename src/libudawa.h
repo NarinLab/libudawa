@@ -9,6 +9,9 @@
 #ifndef libudawa_h
 #define libudawa_h
 
+#ifndef DOCSIZE
+  #define DOCSIZE 1024
+#endif
 #include <secret.h>
 #include <esp32-hal-log.h>
 #include <esp_int_wdt.h>
@@ -31,9 +34,7 @@
 #define PIN_RXD2 16
 #define PIN_TXD2 17
 #define WIFI_FALLBACK_COUNTER 20
-#ifndef DOCSIZE
-  #define DOCSIZE 1024
-#endif
+
 
 const char* configFile = "/cfg.json";
 const char* configFileCoMCU = "/comcu.json";
@@ -169,8 +170,8 @@ ny6l9/duT2POAsUN5IwHGDu8b2NT+vCUQRFVHY31
 WiFiClientSecure ssl = WiFiClientSecure();
 Config config;
 ConfigCoMCU configcomcu;
-ThingsBoardSized<DOCSIZE, 64> tbProvision(ssl);
-ThingsBoardSized<DOCSIZE, 64> tb(ssl);
+ThingsBoardSized<DOCSIZE, 64> tbProvision;
+ThingsBoardSized<DOCSIZE, 64> tb;
 volatile bool provisionResponseProcessed = false;
 
 void startup() {
@@ -230,14 +231,6 @@ void networkInit()
 void udawa() {
   taskManager.runLoop();
   ArduinoOTA.handle();
-
-  if (!provisionResponseProcessed) {
-    tbProvision.loop();
-  }
-  if(config.accessToken && config.provSent)
-  {
-    tb.loop();
-  }
 
   if(FLAG_OTA_UPDATE_INIT)
   {
