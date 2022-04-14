@@ -665,7 +665,7 @@ class ThingsBoardSized
       }
     }
 
-    MQTTClient  m_client;              // PubSub MQTT client instance.
+    MQTTClient  m_client(PayloadSize);              // MQTT client instance.
     GenericCallback m_genericCallbacks[8];     // Generic Callbacks array
     unsigned int m_requestId;
 
