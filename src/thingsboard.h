@@ -1,6 +1,6 @@
 /*
   ThingsBoard.h - Library API for sending data to the ThingsBoard
-  Based on PubSub MQTT library.
+  Based on MQTT MQTT library.
   Created by Olender M. Oct 2018.
   Modified by Narin Laboratory. Nov 2021.
   Released into the public domain.
@@ -161,6 +161,11 @@ class ThingsBoardSized
       return connection_result;
     }
 
+    void setKeepAlive(int keepAlive)
+    {
+      m_client.setKeepAlive(keepAlive);
+    }
+
     // Disconnects from ThingsBoard. Returns true on success.
     inline void disconnect() {
       m_client.disconnect();
@@ -171,7 +176,7 @@ class ThingsBoardSized
       return m_client.connected();
     }
 
-    // Executes an event loop for PubSub client.
+    // Executes an event loop for MQTT client.
     inline void loop() {
       m_client.loop();
     }
@@ -674,7 +679,7 @@ class ThingsBoardSized
     unsigned int m_fwSize;
     int m_fwChunkReceive;
 
-    // PubSub client cannot call a method when message arrives on subscribed topic.
+    // MQTT client cannot call a method when message arrives on subscribed topic.
     // Only free-standing function is allowed.
     // To be able to forward event to an instance, rather than to a function, this pointer exists.
     static ThingsBoardSized *m_subscribedInstance;
