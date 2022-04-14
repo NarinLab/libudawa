@@ -159,6 +159,10 @@ class ThingsBoardSized
       return m_client.write(data);
     }
 
+    size_t write(const uint8_t *buffer, size_t size){
+      return m_client.write(buffer, size);
+    }
+
     bool setBufferSize(uint16_t size)
     {
       return m_client.setBufferSize(size);
