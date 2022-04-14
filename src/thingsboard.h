@@ -159,7 +159,7 @@ class ThingsBoardSized
       return m_client.write(data);
     }
 
-    size_t write(const uint8_t *buffer, size_t size){
+    virtual size_t write(const uint8_t *buffer, size_t size){
       return m_client.write(buffer, size);
     }
 
