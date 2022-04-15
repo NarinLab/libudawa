@@ -257,7 +257,7 @@ void otaUpdateInit()
 
 void iotInit()
 {
-  int freeHeap = heap_caps_get_free_size(MALLOC_CAP_8BIT);
+  int freeHeap = ESP.getFreeHeap();
   sprintf_P(logBuff, PSTR("Initializing IoT, available memory: %d"), freeHeap);
   recordLog(4, PSTR(__FILE__), __LINE__, PSTR(__func__));
   if(freeHeap < 92000)
