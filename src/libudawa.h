@@ -127,7 +127,6 @@ void setCoMCUPin(uint8_t pin, char type, bool mode, uint16_t aval, bool state);
 WiFiClientSecure ssl = WiFiClientSecure();
 Config config;
 ConfigCoMCU configcomcu;
-ThingsBoardSized<DOCSIZE, 64> tbProvision(ssl);
 ThingsBoardSized<DOCSIZE, 64> tb(ssl);
 volatile bool provisionResponseProcessed = false;
 
@@ -189,13 +188,7 @@ void udawa() {
   taskManager.runLoop();
   ArduinoOTA.handle();
 
-  if (!provisionResponseProcessed) {
-    tbProvision.loop();
-  }
-  if(config.accessToken && config.provSent)
-  {
-    tb.loop();
-  }
+  tb.loop();
 
   if(FLAG_OTA_UPDATE_INIT)
   {
@@ -268,11 +261,11 @@ void iotInit()
   }
   if(!config.provSent)
   {
-    if(!tbProvision.connected())
+    if(!tb.connected())
     {
       sprintf_P(logBuff, PSTR("Starting provision initiation to %s:%d"),  config.broker, config.port);
       recordLog(4, PSTR(__FILE__), __LINE__, PSTR(__func__));
-      if(tbProvision.connect(config.broker, "provision", config.port))
+      if(tb.connect(config.broker, "provision", config.port))
       {
         sprintf_P(logBuff, PSTR("Connected to provisioning server: %s:%d"),  config.broker, config.port);
         recordLog(5, PSTR(__FILE__), __LINE__, PSTR(__func__));
@@ -281,9 +274,9 @@ void iotInit()
           { "provisionResponse", processProvisionResponse },
           { "provisionResponse", processProvisionResponse }
         };
-        if(tbProvision.callbackSubscribe(cb, 2))
+        if(tb.callbackSubscribe(cb, 2))
         {
-          if(tbProvision.sendProvisionRequest(config.name, config.provisionDeviceKey, config.provisionDeviceSecret))
+          if(tb.sendProvisionRequest(config.name, config.provisionDeviceKey, config.provisionDeviceSecret))
           {
             config.provSent = true;
             sprintf_P(logBuff, PSTR("Provision request was sent!"));
@@ -764,9 +757,6 @@ callbackResponse processProvisionResponse(const callbackData &data)
     credentials.username = credentials_value["userName"].as<String>();
     credentials.password = credentials_value["password"].as<String>();
     */
-  }
-  if (tbProvision.connected()) {
-    tbProvision.disconnect();
   }
   provisionResponseProcessed = true;
   return callbackResponse("provisionResponse", 1);
