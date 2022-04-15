@@ -260,7 +260,7 @@ void iotInit()
   int freeHeap = heap_caps_get_free_size(MALLOC_CAP_8BIT);
   sprintf_P(logBuff, PSTR("Initializing IoT, available memory: %d"), freeHeap);
   recordLog(4, PSTR(__FILE__), __LINE__, PSTR(__func__));
-  if(freeHeap < 32000)
+  if(freeHeap < 92000)
   {
     sprintf_P(logBuff, PSTR("Unable to init IoT, insufficient memory: %d"), freeHeap);
     recordLog(4, PSTR(__FILE__), __LINE__, PSTR(__func__));
