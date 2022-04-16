@@ -268,11 +268,10 @@ void iotInit()
         sprintf_P(logBuff, PSTR("Connected to provisioning server: %s:%d"),  config.broker, config.port);
         recordLog(5, PSTR(__FILE__), __LINE__, PSTR(__func__));
 
-        GenericCallback cb[2] = {
-          { "provisionResponse", processProvisionResponse },
+        GenericCallback cb[1] = {
           { "provisionResponse", processProvisionResponse }
         };
-        if(tb.callbackSubscribe(cb, 2))
+        if(tb.callbackSubscribe(cb, 1))
         {
           if(tb.sendProvisionRequest(config.name, config.provisionDeviceKey, config.provisionDeviceSecret))
           {
