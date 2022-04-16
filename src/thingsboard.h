@@ -670,8 +670,12 @@ class ThingsBoardSized
       if (data["fw_size"])
         m_fwSize = data["fw_size"].as<int>();
 
-        Logger::log("Calling callbacks for updated attribute");
+      if(m_genericCallbacks[1].m_cb)
+      {
+        Logger::log("Calling callbacks for updated attribute:");
+        Logger::log(m_genericCallbacks[0].m_name);
         m_genericCallbacks[0].m_cb(data);
+      }
     }
 
     // Processes provisioning response
@@ -695,6 +699,8 @@ class ThingsBoardSized
       }
 
       if (m_genericCallbacks[1].m_cb) {
+        Logger::log("Calling callbacks for provisioning response:");
+        Logger::log(m_genericCallbacks[0].m_name);
         m_genericCallbacks[1].m_cb(data);
       }
     }
@@ -727,7 +733,7 @@ class ThingsBoardSized
     }
 
     PubSubClient m_client;              // PubSub MQTT client instance.
-    GenericCallback m_genericCallbacks[8];     // Generic Callbacks array
+    GenericCallback m_genericCallbacks[10];     // Generic Callbacks array
     unsigned int m_requestId;
 
     // For Firmware Update

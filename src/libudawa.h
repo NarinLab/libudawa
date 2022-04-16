@@ -26,7 +26,7 @@
 
 #define countof(a) (sizeof(a) / sizeof(a[0]))
 #define COMPILED __DATE__ " " __TIME__
-#define LOG_REC_SIZE 5
+#define LOG_REC_SIZE 10
 #define LOG_REC_LENGTH 128
 #define PIN_RXD2 16
 #define PIN_TXD2 17
@@ -263,15 +263,16 @@ void iotInit()
     {
       sprintf_P(logBuff, PSTR("Starting provision initiation to %s:%d"),  config.broker, config.port);
       recordLog(4, PSTR(__FILE__), __LINE__, PSTR(__func__));
-      if(tb.connect(config.broker, "provision", config.port))
+      if(tb.connect(config.broker, "provision", config.port, config.name))
       {
         sprintf_P(logBuff, PSTR("Connected to provisioning server: %s:%d"),  config.broker, config.port);
         recordLog(5, PSTR(__FILE__), __LINE__, PSTR(__func__));
 
-        GenericCallback cb[1] = {
+        GenericCallback cb[2] = {
+          { "provisionResponse", processProvisionResponse },
           { "provisionResponse", processProvisionResponse }
         };
-        if(tb.callbackSubscribe(cb, 1))
+        if(tb.callbackSubscribe(cb, 2))
         {
           if(tb.sendProvisionRequest(config.name, config.provisionDeviceKey, config.provisionDeviceSecret))
           {
@@ -295,7 +296,7 @@ void iotInit()
     {
       sprintf_P(logBuff, PSTR("Connecting to broker %s:%d"), config.broker, config.port);
       recordLog(5, PSTR(__FILE__), __LINE__, PSTR(__func__));
-      if(!tb.connect(config.broker, config.accessToken, config.port))
+      if(!tb.connect(config.broker, config.accessToken, config.port, config.name))
       {
         sprintf_P(logBuff, PSTR("Failed to connect to IoT Broker %s"), config.broker);
         recordLog(1, PSTR(__FILE__), __LINE__, PSTR(__func__));
@@ -758,6 +759,7 @@ callbackResponse processProvisionResponse(const callbackData &data)
   }
   provisionResponseProcessed = true;
   return callbackResponse("provisionResponse", 1);
+  reboot();
 }
 
 void recordLog(uint8_t level, const char* fileName, int lineNumber, const char* functionName)
@@ -777,7 +779,14 @@ void recordLog(uint8_t level, const char* fileName, int lineNumber, const char* 
 
   char formattedLog[LOG_REC_LENGTH];
   sprintf_P(formattedLog, PSTR("[%s][%s:%d] %s: %s"), levels, fileName, lineNumber, functionName, logBuff);
-  if(!tb.connected())
+  if(tb.connected())
+  {
+    StaticJsonDocument<DOCSIZE> doc;
+    doc["log"] = formattedLog;
+    tb.sendTelemetryDoc(doc);
+    doc.clear();
+  }
+  else
   {
     if(_logRecIndex == LOG_REC_SIZE)
     {
@@ -786,29 +795,22 @@ void recordLog(uint8_t level, const char* fileName, int lineNumber, const char* 
     sprintf_P(_logRec[_logRecIndex], PSTR("[%s][%s:%d] %s: %s"), levels, fileName, lineNumber, functionName, logBuff);
     _logRecIndex++;
   }
-  else
-  {
-    StaticJsonDocument<DOCSIZE> doc;
-    doc["log"] = formattedLog;
-    tb.sendTelemetryDoc(doc);
-    doc.clear();
-  }
   Serial.println(formattedLog);
 }
 
 void iotSendLog()
 {
+  StaticJsonDocument<DOCSIZE> doc;
   for(uint8_t i = 0; i < LOG_REC_SIZE; i++)
   {
     if(_logRec[i][0] != 0)
     {
-      StaticJsonDocument<DOCSIZE> doc;
       doc["log"] = _logRec[i][0];
       tb.sendTelemetryDoc(doc);
-      doc.clear();
       _logRec[i][0] = 0;
     }
   }
+  doc.clear();
 }
 
 void serialWriteToCoMcu(StaticJsonDocument<DOCSIZE> &doc, bool isRpc)
