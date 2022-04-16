@@ -178,10 +178,6 @@ void networkInit()
       iotInit();
     }
   });
-
-  taskManager.scheduleFixedRate(1000, []{
-    iotSendLog();
-  });
 }
 
 void udawa() {
@@ -207,7 +203,6 @@ void reboot()
 {
   sprintf_P(logBuff, PSTR("Device rebooting..."));
   recordLog(1, PSTR(__FILE__), __LINE__, PSTR(__func__));
-  iotSendLog();
   esp_task_wdt_init(1,true);
   esp_task_wdt_add(NULL);
   while(true);
@@ -309,6 +304,7 @@ void iotInit()
       }
       else
       {
+        iotSendLog();
         sprintf_P(logBuff, PSTR("IoT Connected!"));
         recordLog(5, PSTR(__FILE__), __LINE__, PSTR(__func__));
         FLAG_IOT_SUBSCRIBE = true;
@@ -784,6 +780,10 @@ void recordLog(uint8_t level, const char* fileName, int lineNumber, const char* 
     Serial.println(_logRec[_logRecIndex]);
   }
   _logRecIndex++;
+  if(tb.connected())
+  {
+    iotSendLog();
+  }
 }
 
 void iotSendLog()
