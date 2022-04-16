@@ -697,33 +697,6 @@ class ThingsBoardSized
       }
     }
 
-    // Sends array of attributes or telemetry to ThingsBoard
-    bool sendDataArray(const Telemetry *data, size_t data_count, bool telemetry = true) {
-      if (MaxFieldsAmt < data_count) {
-        Logger::log("too much JSON fields passed");
-        return false;
-      }
-      char payload[PayloadSize];
-      {
-        StaticJsonDocument<PayloadSize> jsonBuffer;
-        JsonVariant object = jsonBuffer.template to<JsonVariant>();
-
-        for (size_t i = 0; i < data_count; ++i) {
-          if (data[i].serializeKeyval(object) == false) {
-            Logger::log("unable to serialize data");
-            return false;
-          }
-        }
-        if (measureJson(jsonBuffer) > PayloadSize - 1) {
-          Logger::log("too small buffer for JSON data");
-          return false;
-        }
-        serializeJson(object, payload, sizeof(payload));
-      }
-
-      return telemetry ? sendTelemetryJson(payload) : sendAttributeJSON(payload);
-    }
-
     PubSubClient m_client;              // PubSub MQTT client instance.
     GenericCallback m_genericCallbacks[8];     // Generic Callbacks array
     unsigned int m_requestId;
