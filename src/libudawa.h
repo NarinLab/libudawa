@@ -791,6 +791,7 @@ void recordLog(uint8_t level, const char* fileName, int lineNumber, const char* 
     char formattedLog[LOG_REC_LENGTH];
     sprintf_P(formattedLog, PSTR("{\"log:\" \"[%s][%s:%d] %s: %s\"}"), levels, fileName, lineNumber, functionName, logBuff);
     tb.sendTelemetryJson(formattedLog);
+    Serial.println(formattedLog);
   }
 
 }
