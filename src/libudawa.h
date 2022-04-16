@@ -776,7 +776,7 @@ void recordLog(uint8_t level, const char* fileName, int lineNumber, const char* 
   else if(level == 1){levels = "E";}
   else{levels = "X";}
 
-  char formattedLog[LOG_REC_LENGTH + 128];
+  char formattedLog[LOG_REC_LENGTH];
   sprintf_P(formattedLog, PSTR("[%s][%s:%d] %s: %s"), levels, fileName, lineNumber, functionName, logBuff);
   if(!tb.connected())
   {
