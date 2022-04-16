@@ -670,7 +670,7 @@ class ThingsBoardSized
       if (data["fw_size"])
         m_fwSize = data["fw_size"].as<int>();
 
-      if(m_genericCallbacks[1].m_cb)
+      if(m_genericCallbacks[0].m_cb)
       {
         Logger::log("Calling callbacks for updated attribute:");
         Logger::log(m_genericCallbacks[0].m_name);
