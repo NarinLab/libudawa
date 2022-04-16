@@ -804,7 +804,7 @@ void iotSendLog()
     {
       char formattedLog[LOG_REC_LENGTH];
       sprintf_P(formattedLog, PSTR("{\"log:\" \"[%s]\"}"), _logRec[i]);
-      tb.sendTelemetryJson(doc);
+      tb.sendTelemetryJson(formattedLog);
       _logRec[i][0] = 0;
     }
   }
