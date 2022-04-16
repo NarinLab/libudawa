@@ -241,37 +241,6 @@ class ThingsBoardSized
     // Telemetry API
 
     // Sends telemetry data to the ThingsBoard, returns true on success.
-    template<class T>
-    inline bool sendTelemetryData(const char *key, T value)
-    {
-      return sendKeyval(key, value);
-    }
-
-    // Sends integer telemetry data to the ThingsBoard, returns true on success.
-    inline bool sendTelemetryInt(const char *key, int value) {
-      return sendKeyval(key, value);
-    }
-
-    // Sends boolean telemetry data to the ThingsBoard, returns true on success.
-    inline bool sendTelemetryBool(const char *key, bool value) {
-      return sendKeyval(key, value);
-    }
-
-    // Sends float telemetry data to the ThingsBoard, returns true on success.
-    inline bool sendTelemetryFloat(const char *key, float value) {
-      return sendKeyval(key, value);
-    }
-
-    // Sends string telemetry data to the ThingsBoard, returns true on success.
-    inline bool sendTelemetryString(const char *key, const char *value) {
-      return sendKeyval(key, value);
-    }
-
-    // Sends aggregated telemetry to the ThingsBoard.
-    inline bool sendTelemetry(const Telemetry *data, size_t data_count) {
-      return sendDataArray(data, data_count);
-    }
-
     // Sends custom JSON telemetry string to the ThingsBoard.
     inline bool sendTelemetryJson(const char *json) {
       return m_client.publish("v1/devices/me/telemetry", json);
@@ -287,36 +256,6 @@ class ThingsBoardSized
     // Attribute API
 
     // Sends an attribute with given name and value.
-    template<class T>
-    inline bool sendAttributeData(const char *attrName, T value) {
-      return sendKeyval(attrName, value, false);
-    }
-
-    // Sends integer attribute with given name and value.
-    inline bool sendAttributeInt(const char *attrName, int value) {
-      return sendKeyval(attrName, value, false);
-    }
-
-    // Sends boolean attribute with given name and value.
-    inline bool sendAttributeBool(const char *attrName, bool value) {
-      return sendKeyval(attrName, value, false);
-    }
-
-    // Sends float attribute with given name and value.
-    inline bool sendAttributeFloat(const char *attrName, float value) {
-      return sendKeyval(attrName, value, false);
-    }
-
-    // Sends string attribute with given name and value.
-    inline bool sendAttributeString(const char *attrName, const char *value) {
-      return sendKeyval(attrName, value, false);
-    }
-
-    // Sends aggregated attributes to the ThingsBoard.
-    inline bool sendAttributes(const Attribute *data, size_t data_count) {
-      return sendDataArray(data, data_count, false);
-    }
-
     // Sends custom JSON with attributes to the ThingsBoard.
     inline bool sendAttributeJSON(const char *json) {
       return m_client.publish("v1/devices/me/attributes", json);
