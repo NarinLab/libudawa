@@ -640,6 +640,7 @@ class ThingsBoardSized
         Logger::log("Unable to de-serialize Shared attribute update request");
         return;
       }
+      serializeJsonPretty(jsonBuffer, Serial);
       JsonObject data = jsonBuffer.template as<JsonObject>();
 
       if (data && (data.size() >= 1)) {
