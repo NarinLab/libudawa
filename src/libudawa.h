@@ -26,11 +26,11 @@
 
 #define countof(a) (sizeof(a) / sizeof(a[0]))
 #define COMPILED __DATE__ " " __TIME__
-#define LOG_REC_SIZE 3
+#define LOG_REC_SIZE 5
 #define LOG_REC_LENGTH 128
 #define PIN_RXD2 16
 #define PIN_TXD2 17
-#define WIFI_FALLBACK_COUNTER 20
+#define WIFI_FALLBACK_COUNTER 5
 #ifndef DOCSIZE
   #define DOCSIZE 1024
 #endif
@@ -763,10 +763,11 @@ callbackResponse processProvisionResponse(const callbackData &data)
 
 void recordLog(uint8_t level, const char* fileName, int lineNumber, const char* functionName)
 {
-  if(_logRecIndex == LOG_REC_SIZE)
+  if(level > config.logLev)
   {
-    _logRecIndex = 0;
+    return;
   }
+
   const char *levels;
   if(level == 5){levels = "D";}
   else if(level == 4){levels = "I";}
@@ -774,16 +775,24 @@ void recordLog(uint8_t level, const char* fileName, int lineNumber, const char* 
   else if(level == 2){levels = "C";}
   else if(level == 1){levels = "E";}
   else{levels = "X";}
-  sprintf_P(_logRec[_logRecIndex], PSTR("[%s][%s:%d] %s: %s"), levels, fileName, lineNumber, functionName, logBuff);
-  if(level <= config.logLev)
+
+  if(!tb.connected())
   {
+    if(_logRecIndex == LOG_REC_SIZE)
+    {
+      _logRecIndex = 0;
+    }
+    sprintf_P(_logRec[_logRecIndex], PSTR("[%s][%s:%d] %s: %s"), levels, fileName, lineNumber, functionName, logBuff);
+    _logRecIndex++;
     Serial.println(_logRec[_logRecIndex]);
   }
-  _logRecIndex++;
-  if(tb.connected())
+  else
   {
-    iotSendLog();
+    char formattedLog[LOG_REC_LENGTH];
+    sprintf_P(_formattedLog, PSTR("{\"log:\" \"[%s][%s:%d] %s: %s\"}"), levels, fileName, lineNumber, functionName, logBuff);
+    tb.sendTelemetryJson(formattedLog);
   }
+
 }
 
 void iotSendLog()
