@@ -205,6 +205,9 @@ void udawa() {
 
 void reboot()
 {
+  sprintf_P(logBuff, PSTR("Device rebooting..."));
+  recordLog(1, PSTR(__FILE__), __LINE__, PSTR(__func__));
+  iotSendLog();
   esp_task_wdt_init(1,true);
   esp_task_wdt_add(NULL);
   while(true);
