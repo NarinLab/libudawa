@@ -86,8 +86,6 @@ class Telemetry {
 
 using Attribute = Telemetry;
 using callbackResponse = Telemetry;
-// JSON object is used to communicate RPC parameters to the client
-using callbackData = StaticJsonDocument;
 
 // Generic Callback wrapper
 class GenericCallback {
@@ -96,7 +94,7 @@ class GenericCallback {
   public:
 
     // Generic Callback signature
-    using processFn = callbackResponse (*)(const callbackData<PayloadSize> &data);
+    using processFn = callbackResponse (*)(const StaticJsonDocument<PayloadSize> &data);
 
     // Constructs empty callback
     inline GenericCallback()
