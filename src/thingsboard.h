@@ -647,7 +647,7 @@ class ThingsBoardSized
       if (jsonBuffer["fw_checksum"] != nullptr){m_fwChecksum = jsonBuffer["fw_checksum"].as<String>();}
       if (jsonBuffer["fw_checksum_algorithm"] != nullptr){m_fwChecksumAlgorithm = jsonBuffer["fw_checksum_algorithm"].as<String>();}
       if (jsonBuffer["fw_size"] != nullptr){m_fwSize = jsonBuffer["fw_size"].as<int>();}
-      m_genericCallbacks[0].m_cb(data);
+      m_genericCallbacks[0].m_cb(jsonBuffer);
     }
 
     // Processes provisioning response
