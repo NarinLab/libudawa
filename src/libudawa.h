@@ -790,8 +790,11 @@ void recordLog(uint8_t level, const char* fileName, int lineNumber, const char* 
   {
     char formattedLog[LOG_REC_LENGTH + 128];
     sprintf_P(formattedLog, PSTR("{\"log:\" \"[%s][%s:%d] %s: %s\"}"), levels, fileName, lineNumber, functionName, logBuff);
-    tb.sendTelemetryJson(formattedLog);
-    Serial.println(formattedLog);
+    Serial.println(logBuff);
+    StaticJsonDocument<DOCSIZE> doc;
+    doc["log"] = formattedLog;
+    tb.sendTelemetryDoc(doc);
+    doc.clear();
   }
 
 }
@@ -802,9 +805,10 @@ void iotSendLog()
   {
     if(_logRec[i][0] != 0)
     {
-      char formattedLog[LOG_REC_LENGTH + 128];
-      sprintf_P(formattedLog, PSTR("{\"log:\" \"%s\"}"), _logRec[i]);
-      tb.sendTelemetryJson(formattedLog);
+      StaticJsonDocument<DOCSIZE> doc;
+      doc["log"] = _logRec[i][0];
+      tb.sendTelemetryDoc(doc);
+      doc.clear();
       _logRec[i][0] = 0;
     }
   }
