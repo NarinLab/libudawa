@@ -642,22 +642,12 @@ class ThingsBoardSized
       }
 
       // Save data for firmware update
-      if (data["fw_title"] != nullptr)
-        m_fwTitle = data["fw_title"].as<String>();
-
-      if (data["fw_version"] != nullptr)
-        m_fwVersion = data["fw_version"].as<String>();
-
-      if (data["fw_checksum"] != nullptr)
-        m_fwChecksum = data["fw_checksum"].as<String>();
-
-      if (data["fw_checksum_algorithm"] != nullptr)
-        m_fwChecksumAlgorithm = data["fw_checksum_algorithm"].as<String>();
-
-      if (data["fw_size"] != nullptr)
-        m_fwSize = data["fw_size"].as<int>();
-
-        m_genericCallbacks[0].m_cb(data);
+      if (jsonBuffer["fw_title"] != nullptr){m_fwTitle = jsonBuffer["fw_title"].as<String>();}
+      if (jsonBuffer["fw_version"] != nullptr){m_fwVersion = jsonBuffer["fw_version"].as<String>();}
+      if (jsonBuffer["fw_checksum"] != nullptr){m_fwChecksum = jsonBuffer["fw_checksum"].as<String>();}
+      if (jsonBuffer["fw_checksum_algorithm"] != nullptr){m_fwChecksumAlgorithm = jsonBuffer["fw_checksum_algorithm"].as<String>();}
+      if (jsonBuffer["fw_size"] != nullptr){m_fwSize = jsonBuffer["fw_size"].as<int>();}
+      m_genericCallbacks[0].m_cb(data);
     }
 
     // Processes provisioning response
