@@ -86,6 +86,10 @@ class Telemetry {
 
 using Attribute = Telemetry;
 using callbackResponse = Telemetry;
+// JSON object is used to communicate RPC parameters to the client
+using callbackData = JsonObject;
+using Shared_Attribute_Data = JsonObject;
+using Provision_Data = JsonObject;
 
 // Generic Callback wrapper
 class GenericCallback {
@@ -94,7 +98,7 @@ class GenericCallback {
   public:
 
     // Generic Callback signature
-    using processFn = callbackResponse (*)(const StaticJsonDocument<PayloadSize> &data);
+    using processFn = callbackResponse (*)(const callbackData &data);
 
     // Constructs empty callback
     inline GenericCallback()
@@ -495,58 +499,60 @@ class ThingsBoardSized
     // Processes RPC message
     void process_rpc_message(char* topic, uint8_t* payload, unsigned int length) {
       callbackResponse r;
-
-      StaticJsonDocument<PayloadSize> jsonBuffer;
-      DeserializationError error = deserializeJson(jsonBuffer, payload, length);
-      if (error) {
-        Logger::log("unable to de-serialize RPC");
-        return;
-      }
-      const JsonObject &data = jsonBuffer.template as<JsonObject>();
-      const char *methodName = data["method"];
-      const char *params = data["params"];
-
-      if (methodName) {
-        Logger::log("received RPC:");
-        Logger::log(methodName);
-      } else {
-        Logger::log("RPC method is NULL");
-        return;
-      }
-
-      for (size_t i = 0; i < sizeof(m_genericCallbacks) / sizeof(*m_genericCallbacks); ++i) {
-        if (m_genericCallbacks[i].m_cb && !strcmp(m_genericCallbacks[i].m_name, methodName)) {
-
-          Logger::log("calling RPC:");
-          Logger::log(methodName);
-
-          // Do not inform client, if parameter field is missing for some reason
-          if (!data.containsKey("params")) {
-            Logger::log("no parameters passed with RPC, passing null JSON");
-          }
-
-          // try to de-serialize params
-          StaticJsonDocument<PayloadSize> doc;
-          DeserializationError err_param = deserializeJson(doc, params);
-          //if failed to de-serialize params then send JsonObject instead
-          if (err_param) {
-            Logger::log("params:");
-            Logger::log(data["params"].as<String>().c_str());
-            r = m_genericCallbacks[i].m_cb(data["params"]);
-          } else {
-            Logger::log("params:");
-            Logger::log(params);
-            const JsonObject &param = doc.template as<JsonObject>();
-            // Getting non-existing field from JSON should automatically
-            // set JSONVariant to null
-            r = m_genericCallbacks[i].m_cb(param);
-          }
-          break;
+      {
+        StaticJsonDocument<JSON_OBJECT_SIZE(MaxFieldsAmt)> jsonBuffer;
+        DeserializationError error = deserializeJson(jsonBuffer, payload, length);
+        if (error) {
+          Logger::log("unable to de-serialize RPC");
+          return;
         }
+        const JsonObject &data = jsonBuffer.template as<JsonObject>();
+        const char *methodName = data["method"];
+        const char *params = data["params"];
+
+        if (methodName) {
+          Logger::log("received RPC:");
+          Logger::log(methodName);
+        } else {
+          Logger::log("RPC method is NULL");
+          return;
+        }
+
+        for (size_t i = 0; i < sizeof(m_genericCallbacks) / sizeof(*m_genericCallbacks); ++i) {
+          if (m_genericCallbacks[i].m_cb && !strcmp(m_genericCallbacks[i].m_name, methodName)) {
+
+            Logger::log("calling RPC:");
+            Logger::log(methodName);
+
+            // Do not inform client, if parameter field is missing for some reason
+            if (!data.containsKey("params")) {
+              Logger::log("no parameters passed with RPC, passing null JSON");
+            }
+
+            // try to de-serialize params
+            StaticJsonDocument<JSON_OBJECT_SIZE(MaxFieldsAmt)> doc;
+            DeserializationError err_param = deserializeJson(doc, params);
+            //if failed to de-serialize params then send JsonObject instead
+            if (err_param) {
+              Logger::log("params:");
+              Logger::log(data["params"].as<String>().c_str());
+              r = m_genericCallbacks[i].m_cb(data["params"]);
+            } else {
+              Logger::log("params:");
+              Logger::log(params);
+              const JsonObject &param = doc.template as<JsonObject>();
+              // Getting non-existing field from JSON should automatically
+              // set JSONVariant to null
+              r = m_genericCallbacks[i].m_cb(param);
+            }
+            break;
+          }
+        }
+
       }
       // Fill in response
       char responsePayload[PayloadSize] = {0};
-      StaticJsonDocument<PayloadSize> respBuffer;
+      StaticJsonDocument<JSON_OBJECT_SIZE(1)> respBuffer;
       JsonVariant resp_obj = respBuffer.template to<JsonVariant>();
 
       if (r.serializeKeyval(resp_obj) == false) {
@@ -630,37 +636,49 @@ class ThingsBoardSized
 
     // Processes shared attribute update message
     void process_shared_attribute_update_message(char* topic, uint8_t* payload, unsigned int length) {
-      StaticJsonDocument<PayloadSize> jsonBuffer;
+      StaticJsonDocument<JSON_OBJECT_SIZE(MaxFieldsAmt)> jsonBuffer;
       DeserializationError error = deserializeJson(jsonBuffer, payload, length);
       if (error) {
         Logger::log("Unable to de-serialize Shared attribute update request");
         return;
       }
+      JsonObject data = jsonBuffer.template as<JsonObject>();
+
+      if (data && (data.size() >= 1)) {
+        Logger::log("Received shared attribute update request");
+        if (data["shared"]) {
+          data = data["shared"];
+        }
+      } else {
+        Logger::log("Shared attribute update key not found.");
+        return;
+      }
 
       // Save data for firmware update
-      if(jsonBuffer["fw_title"] != nullptr){
-        m_fwTitle = jsonBuffer["fw_title"].as<String>();
-      }
-      if(jsonBuffer["fw_version"] != nullptr){
-        m_fwVersion = jsonBuffer["fw_version"].as<String>();
-      }
-      if(jsonBuffer["fw_checksum"] != nullptr){
-        m_fwChecksum = jsonBuffer["fw_checksum"].as<String>();
-      }
-      if(jsonBuffer["fw_checksum_algorithm"] != nullptr){
-        m_fwChecksumAlgorithm = jsonBuffer["fw_checksum_algorithm"].as<String>();
-      }
-      if(jsonBuffer["fw_size"] != nullptr){
-        m_fwSize = jsonBuffer["fw_size"].as<int>();
-      }
-      m_genericCallbacks[0].m_cb(jsonBuffer);
+      if (data["fw_title"])
+        m_fwTitle = data["fw_title"].as<String>();
+
+      if (data["fw_version"])
+        m_fwVersion = data["fw_version"].as<String>();
+
+      if (data["fw_checksum"])
+        m_fwChecksum = data["fw_checksum"].as<String>();
+
+      if (data["fw_checksum_algorithm"])
+        m_fwChecksumAlgorithm = data["fw_checksum_algorithm"].as<String>();
+
+      if (data["fw_size"])
+        m_fwSize = data["fw_size"].as<int>();
+
+        Logger::log("Calling callbacks for updated attribute");
+        m_genericCallbacks[0].m_cb(data);
     }
 
     // Processes provisioning response
     void process_provisioning_response(char* topic, uint8_t* payload, unsigned int length) {
       Logger::log("Process provisioning response");
 
-      StaticJsonDocument<PayloadSize> jsonBuffer;
+      StaticJsonDocument<JSON_OBJECT_SIZE(MaxFieldsAmt)> jsonBuffer;
       DeserializationError error = deserializeJson(jsonBuffer, payload, length);
       if (error) {
         Logger::log("Unable to de-serialize provision response");
@@ -679,6 +697,33 @@ class ThingsBoardSized
       if (m_genericCallbacks[1].m_cb) {
         m_genericCallbacks[1].m_cb(data);
       }
+    }
+
+    // Sends array of attributes or telemetry to ThingsBoard
+    bool sendDataArray(const Telemetry *data, size_t data_count, bool telemetry = true) {
+      if (MaxFieldsAmt < data_count) {
+        Logger::log("too much JSON fields passed");
+        return false;
+      }
+      char payload[PayloadSize];
+      {
+        StaticJsonDocument<JSON_OBJECT_SIZE(MaxFieldsAmt)> jsonBuffer;
+        JsonVariant object = jsonBuffer.template to<JsonVariant>();
+
+        for (size_t i = 0; i < data_count; ++i) {
+          if (data[i].serializeKeyval(object) == false) {
+            Logger::log("unable to serialize data");
+            return false;
+          }
+        }
+        if (measureJson(jsonBuffer) > PayloadSize - 1) {
+          Logger::log("too small buffer for JSON data");
+          return false;
+        }
+        serializeJson(object, payload, sizeof(payload));
+      }
+
+      return telemetry ? sendTelemetryJson(payload) : sendAttributeJSON(payload);
     }
 
     PubSubClient m_client;              // PubSub MQTT client instance.
