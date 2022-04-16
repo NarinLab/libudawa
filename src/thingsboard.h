@@ -499,60 +499,58 @@ class ThingsBoardSized
     // Processes RPC message
     void process_rpc_message(char* topic, uint8_t* payload, unsigned int length) {
       callbackResponse r;
-      {
-        StaticJsonDocument<JSON_OBJECT_SIZE(MaxFieldsAmt)> jsonBuffer;
-        DeserializationError error = deserializeJson(jsonBuffer, payload, length);
-        if (error) {
-          Logger::log("unable to de-serialize RPC");
-          return;
-        }
-        const JsonObject &data = jsonBuffer.template as<JsonObject>();
-        const char *methodName = data["method"];
-        const char *params = data["params"];
 
-        if (methodName) {
-          Logger::log("received RPC:");
+      StaticJsonDocument<PayloadSize> jsonBuffer;
+      DeserializationError error = deserializeJson(jsonBuffer, payload, length);
+      if (error) {
+        Logger::log("unable to de-serialize RPC");
+        return;
+      }
+      const JsonObject &data = jsonBuffer.template as<JsonObject>();
+      const char *methodName = data["method"];
+      const char *params = data["params"];
+
+      if (methodName) {
+        Logger::log("received RPC:");
+        Logger::log(methodName);
+      } else {
+        Logger::log("RPC method is NULL");
+        return;
+      }
+
+      for (size_t i = 0; i < sizeof(m_genericCallbacks) / sizeof(*m_genericCallbacks); ++i) {
+        if (m_genericCallbacks[i].m_cb && !strcmp(m_genericCallbacks[i].m_name, methodName)) {
+
+          Logger::log("calling RPC:");
           Logger::log(methodName);
-        } else {
-          Logger::log("RPC method is NULL");
-          return;
-        }
 
-        for (size_t i = 0; i < sizeof(m_genericCallbacks) / sizeof(*m_genericCallbacks); ++i) {
-          if (m_genericCallbacks[i].m_cb && !strcmp(m_genericCallbacks[i].m_name, methodName)) {
-
-            Logger::log("calling RPC:");
-            Logger::log(methodName);
-
-            // Do not inform client, if parameter field is missing for some reason
-            if (!data.containsKey("params")) {
-              Logger::log("no parameters passed with RPC, passing null JSON");
-            }
-
-            // try to de-serialize params
-            StaticJsonDocument<JSON_OBJECT_SIZE(MaxFieldsAmt)> doc;
-            DeserializationError err_param = deserializeJson(doc, params);
-            //if failed to de-serialize params then send JsonObject instead
-            if (err_param) {
-              Logger::log("params:");
-              Logger::log(data["params"].as<String>().c_str());
-              r = m_genericCallbacks[i].m_cb(data["params"]);
-            } else {
-              Logger::log("params:");
-              Logger::log(params);
-              const JsonObject &param = doc.template as<JsonObject>();
-              // Getting non-existing field from JSON should automatically
-              // set JSONVariant to null
-              r = m_genericCallbacks[i].m_cb(param);
-            }
-            break;
+          // Do not inform client, if parameter field is missing for some reason
+          if (!data.containsKey("params")) {
+            Logger::log("no parameters passed with RPC, passing null JSON");
           }
-        }
 
+          // try to de-serialize params
+          StaticJsonDocument<JSON_OBJECT_SIZE(MaxFieldsAmt)> doc;
+          DeserializationError err_param = deserializeJson(doc, params);
+          //if failed to de-serialize params then send JsonObject instead
+          if (err_param) {
+            Logger::log("params:");
+            Logger::log(data["params"].as<String>().c_str());
+            r = m_genericCallbacks[i].m_cb(data["params"]);
+          } else {
+            Logger::log("params:");
+            Logger::log(params);
+            const JsonObject &param = doc.template as<JsonObject>();
+            // Getting non-existing field from JSON should automatically
+            // set JSONVariant to null
+            r = m_genericCallbacks[i].m_cb(param);
+          }
+          break;
+        }
       }
       // Fill in response
       char responsePayload[PayloadSize] = {0};
-      StaticJsonDocument<JSON_OBJECT_SIZE(1)> respBuffer;
+      StaticJsonDocument<PayloadSize> respBuffer;
       JsonVariant resp_obj = respBuffer.template to<JsonVariant>();
 
       if (r.serializeKeyval(resp_obj) == false) {
@@ -636,7 +634,7 @@ class ThingsBoardSized
 
     // Processes shared attribute update message
     void process_shared_attribute_update_message(char* topic, uint8_t* payload, unsigned int length) {
-      StaticJsonDocument<JSON_OBJECT_SIZE(MaxFieldsAmt)> jsonBuffer;
+      StaticJsonDocument<PayloadSize> jsonBuffer;
       DeserializationError error = deserializeJson(jsonBuffer, payload, length);
       if (error) {
         Logger::log("Unable to de-serialize Shared attribute update request");
