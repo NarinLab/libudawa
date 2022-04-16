@@ -784,7 +784,7 @@ void recordLog(uint8_t level, const char* fileName, int lineNumber, const char* 
     {
       _logRecIndex = 0;
     }
-    _logRec[_logRecIndex] = formattedLog;
+    copy_n(formattedLog,_logRecIndex, _logRec);
     _logRecIndex++;
   }
   else
