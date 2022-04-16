@@ -793,7 +793,6 @@ void iotSendLog()
       doc["log"] = _logRec[i];
       tb.sendTelemetryDoc(doc);
       doc.clear();
-      tb.sendTelemetryDoc(doc);
       _logRec[i][0] = 0;
       long now = millis();
       while(true)
