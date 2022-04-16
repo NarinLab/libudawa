@@ -789,7 +789,7 @@ void recordLog(uint8_t level, const char* fileName, int lineNumber, const char* 
   else
   {
     char formattedLog[LOG_REC_LENGTH];
-    sprintf_P(_formattedLog, PSTR("{\"log:\" \"[%s][%s:%d] %s: %s\"}"), levels, fileName, lineNumber, functionName, logBuff);
+    sprintf_P(formattedLog, PSTR("{\"log:\" \"[%s][%s:%d] %s: %s\"}"), levels, fileName, lineNumber, functionName, logBuff);
     tb.sendTelemetryJson(formattedLog);
   }
 
