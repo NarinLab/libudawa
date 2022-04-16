@@ -530,7 +530,7 @@ class ThingsBoardSized
           }
 
           // try to de-serialize params
-          StaticJsonDocument<JSON_OBJECT_SIZE(MaxFieldsAmt)> doc;
+          StaticJsonDocument<PayloadSize> doc;
           DeserializationError err_param = deserializeJson(doc, params);
           //if failed to de-serialize params then send JsonObject instead
           if (err_param) {
@@ -676,7 +676,7 @@ class ThingsBoardSized
     void process_provisioning_response(char* topic, uint8_t* payload, unsigned int length) {
       Logger::log("Process provisioning response");
 
-      StaticJsonDocument<JSON_OBJECT_SIZE(MaxFieldsAmt)> jsonBuffer;
+      StaticJsonDocument<PayloadSize> jsonBuffer;
       DeserializationError error = deserializeJson(jsonBuffer, payload, length);
       if (error) {
         Logger::log("Unable to de-serialize provision response");
@@ -705,7 +705,7 @@ class ThingsBoardSized
       }
       char payload[PayloadSize];
       {
-        StaticJsonDocument<JSON_OBJECT_SIZE(MaxFieldsAmt)> jsonBuffer;
+        StaticJsonDocument<PayloadSize> jsonBuffer;
         JsonVariant object = jsonBuffer.template to<JsonVariant>();
 
         for (size_t i = 0; i < data_count; ++i) {
