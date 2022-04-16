@@ -783,8 +783,8 @@ void recordLog(uint8_t level, const char* fileName, int lineNumber, const char* 
       _logRecIndex = 0;
     }
     sprintf_P(_logRec[_logRecIndex], PSTR("[%s][%s:%d] %s: %s"), levels, fileName, lineNumber, functionName, logBuff);
-    _logRecIndex++;
     Serial.println(_logRec[_logRecIndex]);
+    _logRecIndex++;
   }
   else
   {
