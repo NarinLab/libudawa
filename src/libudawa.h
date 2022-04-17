@@ -302,13 +302,12 @@ void iotInit()
         recordLog(1, PSTR(__FILE__), __LINE__, PSTR(__func__));
         return;
       }
-      else
-      {
-        iotSendLog();
-        sprintf_P(logBuff, PSTR("IoT Connected!"));
-        recordLog(5, PSTR(__FILE__), __LINE__, PSTR(__func__));
-        FLAG_IOT_SUBSCRIBE = true;
-      }
+
+      iotSendLog();
+      sprintf_P(logBuff, PSTR("IoT Connected!"));
+      recordLog(5, PSTR(__FILE__), __LINE__, PSTR(__func__));
+      FLAG_IOT_SUBSCRIBE = true;
+
     }
   }
 }
