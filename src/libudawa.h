@@ -270,11 +270,12 @@ void iotInit()
   }
   if(!config.provSent)
   {
-    if(!tb.connected())
+    ThingsBoardSized<DOCSIZE, 64> tbProvision(ssl);
+    if(!tbProvision.connected())
     {
       sprintf_P(logBuff, PSTR("Starting provision initiation to %s:%d"),  config.broker, config.port);
       recordLog(4, PSTR(__FILE__), __LINE__, PSTR(__func__));
-      if(tb.connect(config.broker, "provision", config.port, config.name))
+      if(tbProvision.connect(config.broker, "provision", config.port))
       {
         sprintf_P(logBuff, PSTR("Connected to provisioning server: %s:%d"),  config.broker, config.port);
         recordLog(5, PSTR(__FILE__), __LINE__, PSTR(__func__));
@@ -283,13 +284,22 @@ void iotInit()
           { "provisionResponse", processProvisionResponse },
           { "provisionResponse", processProvisionResponse }
         };
-        if(tb.callbackSubscribe(cb, 2))
+        if(tbProvision.callbackSubscribe(cb, 2))
         {
-          if(tb.sendProvisionRequest(config.name, config.provisionDeviceKey, config.provisionDeviceSecret))
+          if(tbProvision.sendProvisionRequest(config.name, config.provisionDeviceKey, config.provisionDeviceSecret))
           {
-            config.provSent = true;
-            sprintf_P(logBuff, PSTR("Provision request was sent!"));
+            sprintf_P(logBuff, PSTR("Provision request was sent! Waiting for response."));
             recordLog(5, PSTR(__FILE__), __LINE__, PSTR(__func__));
+            unsigned long timer = millis();
+            while(true)
+            {
+              tbProvision.loop();
+              if(millis() - timer > 10000)
+              {
+                break;
+              }
+            }
+            tbProvision.disconnect();
           }
         }
       }
@@ -301,7 +311,7 @@ void iotInit()
       }
     }
   }
-  else if(provisionResponseProcessed || config.accessToken)
+  else if(config.provSent)
   {
     if(!tb.connected())
     {
@@ -318,7 +328,6 @@ void iotInit()
       sprintf_P(logBuff, PSTR("IoT Connected!"));
       recordLog(5, PSTR(__FILE__), __LINE__, PSTR(__func__));
       FLAG_IOT_SUBSCRIBE = true;
-
     }
   }
 }
@@ -524,7 +533,7 @@ void configLoad()
     strlcpy(config.dpass, doc["dpass"].as<const char*>(), sizeof(config.dpass));
     strlcpy(config.upass, doc["upass"].as<const char*>(), sizeof(config.upass));
     strlcpy(config.accessToken, doc["accessToken"].as<const char*>(), sizeof(config.accessToken));
-    config.provSent = doc["provSent"].as<bool>();
+    config.provSent = doc["provSent"].as<int>();
     config.port = doc["port"].as<uint16_t>() ? doc["port"].as<uint16_t>() : port;
     config.logLev = doc["logLev"].as<uint8_t>();
     strlcpy(config.provisionDeviceKey, doc["provisionDeviceKey"].as<const char*>(), sizeof(config.provisionDeviceKey));
@@ -757,6 +766,7 @@ callbackResponse processProvisionResponse(const callbackData &data)
   if (strncmp(data["credentialsType"], "ACCESS_TOKEN", strlen("ACCESS_TOKEN")) == 0)
   {
     strlcpy(config.accessToken, data["credentialsValue"].as<String>().c_str(), sizeof(config.accessToken));
+    config.provSent = true;
     configSave();
   }
   if (strncmp(data["credentialsType"], "MQTT_BASIC", strlen("MQTT_BASIC")) == 0)
