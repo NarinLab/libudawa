@@ -27,7 +27,7 @@
 #define countof(a) (sizeof(a) / sizeof(a[0]))
 #define COMPILED __DATE__ " " __TIME__
 #define LOG_REC_SIZE 10
-#define LOG_REC_LENGTH 128
+#define LOG_REC_LENGTH 192
 #define PIN_RXD2 16
 #define PIN_TXD2 17
 #define WIFI_FALLBACK_COUNTER 5
@@ -803,11 +803,11 @@ void iotSendLog()
   StaticJsonDocument<DOCSIZE> doc;
   for(uint8_t i = 0; i < LOG_REC_SIZE; i++)
   {
-    if(_logRec[i][0] != 0)
+    if(_logRec[i] != nullptr)
     {
       doc["log"] = _logRec[i][0];
       tb.sendTelemetryDoc(doc);
-      _logRec[i][0] = 0;
+      _logRec[i] = nullptr;
     }
   }
   doc.clear();
