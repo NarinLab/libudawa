@@ -148,7 +148,7 @@ void startup() {
   else
   {
     sprintf_P(logBuff, PSTR("Loading config..."));
-    recordLog(1, PSTR(__FILE__), __LINE__, PSTR(__func__));
+    recordLog(5, PSTR(__FILE__), __LINE__, PSTR(__func__));
     configLoad();
   }
 }
