@@ -804,7 +804,7 @@ void iotSendLog()
   {
     if(_logRec[i][0] != ' ')
     {
-      doc["log"] = _logRec[i][0];
+      doc["log"] = _logRec[i];
       tb.sendTelemetryDoc(doc);
       memset(_logRec[i], ' ', LOG_REC_LENGTH);
     }
