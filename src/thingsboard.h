@@ -146,6 +146,23 @@ class ThingsBoardSized
     // Destroys ThingsBoardSized class with network client.
     inline ~ThingsBoardSized() { }
 
+    bool beginPublish(const char* topic, unsigned int plength, boolean retained){
+      return m_client.beginPublish(topic, plength, retained);
+    }
+    // Finish off this publish message (started with beginPublish)
+    // Returns 1 if the packet was sent successfully, 0 if there was an error
+    int endPublish(){
+      return m_client.endPublish();
+    }
+    // Write a single byte of payload (only to be used with beginPublish/endPublish)
+    virtual size_t write(uint8_t data){
+      return m_client.write(data);
+    }
+
+    virtual size_t write(const uint8_t *buffer, size_t size){
+      return m_client.write(buffer, size);
+    }
+
     bool setBufferSize(uint16_t size)
     {
       return m_client.setBufferSize(size);
@@ -224,37 +241,6 @@ class ThingsBoardSized
     // Telemetry API
 
     // Sends telemetry data to the ThingsBoard, returns true on success.
-    template<class T>
-    inline bool sendTelemetryData(const char *key, T value)
-    {
-      return sendKeyval(key, value);
-    }
-
-    // Sends integer telemetry data to the ThingsBoard, returns true on success.
-    inline bool sendTelemetryInt(const char *key, int value) {
-      return sendKeyval(key, value);
-    }
-
-    // Sends boolean telemetry data to the ThingsBoard, returns true on success.
-    inline bool sendTelemetryBool(const char *key, bool value) {
-      return sendKeyval(key, value);
-    }
-
-    // Sends float telemetry data to the ThingsBoard, returns true on success.
-    inline bool sendTelemetryFloat(const char *key, float value) {
-      return sendKeyval(key, value);
-    }
-
-    // Sends string telemetry data to the ThingsBoard, returns true on success.
-    inline bool sendTelemetryString(const char *key, const char *value) {
-      return sendKeyval(key, value);
-    }
-
-    // Sends aggregated telemetry to the ThingsBoard.
-    inline bool sendTelemetry(const Telemetry *data, size_t data_count) {
-      return sendDataArray(data, data_count);
-    }
-
     // Sends custom JSON telemetry string to the ThingsBoard.
     inline bool sendTelemetryJson(const char *json) {
       return m_client.publish("v1/devices/me/telemetry", json);
@@ -270,36 +256,6 @@ class ThingsBoardSized
     // Attribute API
 
     // Sends an attribute with given name and value.
-    template<class T>
-    inline bool sendAttributeData(const char *attrName, T value) {
-      return sendKeyval(attrName, value, false);
-    }
-
-    // Sends integer attribute with given name and value.
-    inline bool sendAttributeInt(const char *attrName, int value) {
-      return sendKeyval(attrName, value, false);
-    }
-
-    // Sends boolean attribute with given name and value.
-    inline bool sendAttributeBool(const char *attrName, bool value) {
-      return sendKeyval(attrName, value, false);
-    }
-
-    // Sends float attribute with given name and value.
-    inline bool sendAttributeFloat(const char *attrName, float value) {
-      return sendKeyval(attrName, value, false);
-    }
-
-    // Sends string attribute with given name and value.
-    inline bool sendAttributeString(const char *attrName, const char *value) {
-      return sendKeyval(attrName, value, false);
-    }
-
-    // Sends aggregated attributes to the ThingsBoard.
-    inline bool sendAttributes(const Attribute *data, size_t data_count) {
-      return sendDataArray(data, data_count, false);
-    }
-
     // Sends custom JSON with attributes to the ThingsBoard.
     inline bool sendAttributeJSON(const char *json) {
       return m_client.publish("v1/devices/me/attributes", json);
@@ -714,8 +670,12 @@ class ThingsBoardSized
       if (data["fw_size"])
         m_fwSize = data["fw_size"].as<int>();
 
-        Logger::log("Calling callbacks for updated attribute");
+      if(m_genericCallbacks[0].m_cb)
+      {
+        Logger::log("Calling callbacks for updated attribute:");
+        Logger::log(m_genericCallbacks[0].m_name);
         m_genericCallbacks[0].m_cb(data);
+      }
     }
 
     // Processes provisioning response
@@ -739,6 +699,8 @@ class ThingsBoardSized
       }
 
       if (m_genericCallbacks[1].m_cb) {
+        Logger::log("Calling callbacks for provisioning response:");
+        Logger::log(m_genericCallbacks[0].m_name);
         m_genericCallbacks[1].m_cb(data);
       }
     }
@@ -771,7 +733,7 @@ class ThingsBoardSized
     }
 
     PubSubClient m_client;              // PubSub MQTT client instance.
-    GenericCallback m_genericCallbacks[8];     // Generic Callbacks array
+    GenericCallback m_genericCallbacks[10];     // Generic Callbacks array
     unsigned int m_requestId;
 
     // For Firmware Update
