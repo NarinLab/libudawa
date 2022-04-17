@@ -803,11 +803,11 @@ void iotSendLog()
   StaticJsonDocument<DOCSIZE> doc;
   for(uint8_t i = 0; i < LOG_REC_SIZE; i++)
   {
-    if(_logRec[i] != nullptr)
+    if(_logRec[i][0] == 0)
     {
       doc["log"] = _logRec[i][0];
       tb.sendTelemetryDoc(doc);
-      _logRec[i] = nullptr;
+      _logRec[i][0] = 0;
     }
   }
   doc.clear();
