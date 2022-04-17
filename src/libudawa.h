@@ -178,6 +178,17 @@ void networkInit()
       iotInit();
     }
   });
+
+  unsigned long otaTimer = millis();
+  while(true)
+  {
+    ArduinoOTA.handle();
+    if(millis() - otaTimer > 10000)
+    {
+      break;
+    }
+    delay(10);
+  }
 }
 
 void udawa() {
