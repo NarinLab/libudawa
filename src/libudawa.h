@@ -767,7 +767,6 @@ void recordLog(uint8_t level, const char* fileName, int lineNumber, const char* 
   {
     return;
   }
-
   const char *levels;
   if(level == 5){levels = "D";}
   else if(level == 4){levels = "I";}
