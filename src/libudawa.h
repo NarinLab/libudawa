@@ -788,7 +788,7 @@ void recordLog(uint8_t level, const char* fileName, int lineNumber, const char* 
 
   char formattedLog[LOG_REC_LENGTH];
   uint32_t freeHeap = ESP.getFreeHeap();
-  sprintf_P(formattedLog, PSTR("[%s][%lu][%s:%d] %s: %s"), levels, freeHeap, fileName, lineNumber, functionName, logBuff);
+  sprintf_P(formattedLog, PSTR("[%s][%d][%s:%d] %s: %s"), levels, freeHeap, fileName, lineNumber, functionName, logBuff);
   if(tb.connected())
   {
     StaticJsonDocument<DOCSIZE> doc;
@@ -802,7 +802,7 @@ void recordLog(uint8_t level, const char* fileName, int lineNumber, const char* 
     {
       _logRecIndex = 0;
     }
-    sprintf_P(_logRec[_logRecIndex], PSTR("[%s][%lu][%s:%d] %s: %s"), levels, freeHeap, fileName, lineNumber, functionName, logBuff);
+    sprintf_P(_logRec[_logRecIndex], PSTR("[%s][%d][%s:%d] %s: %s"), levels, freeHeap, fileName, lineNumber, functionName, logBuff);
     _logRecIndex++;
   }
   Serial.println(formattedLog);
