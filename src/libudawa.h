@@ -777,7 +777,7 @@ void recordLog(uint8_t level, const char* fileName, int lineNumber, const char* 
   else{levels = "X";}
 
   char formattedLog[LOG_REC_LENGTH];
-  sprintf_P(formattedLog, PSTR("[%s][%s:%d] %s: %s"), levels, fileName, lineNumber, functionName, logBuff);
+  sprintf_P(formattedLog, PSTR("[%s][%s:%d] %s: %s\0"), levels, fileName, lineNumber, functionName, logBuff);
   if(tb.connected())
   {
     StaticJsonDocument<DOCSIZE> doc;
@@ -791,7 +791,7 @@ void recordLog(uint8_t level, const char* fileName, int lineNumber, const char* 
     {
       _logRecIndex = 0;
     }
-    sprintf_P(_logRec[_logRecIndex], PSTR("[%s][%s:%d] %s: %s"), levels, fileName, lineNumber, functionName, logBuff);
+    sprintf_P(_logRec[_logRecIndex], PSTR("[%s][%s:%d] %s: %s\0"), levels, fileName, lineNumber, functionName, logBuff);
     _logRecIndex++;
   }
   Serial.println(formattedLog);
@@ -802,11 +802,11 @@ void iotSendLog()
   StaticJsonDocument<DOCSIZE> doc;
   for(uint8_t i = 0; i < LOG_REC_SIZE; i++)
   {
-    if(_logRec[i][0] != ' ')
+    if(_logRec[i][0] != '\0')
     {
-      doc["log"] = _logRec[i];
+      doc["log"] = String(_logRec[i]);
       tb.sendTelemetryDoc(doc);
-      memset(_logRec[i], ' ', LOG_REC_LENGTH);
+      _logRec[i][0] = '\0';
     }
   }
   doc.clear();
