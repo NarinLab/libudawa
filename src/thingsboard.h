@@ -522,7 +522,7 @@ class ThingsBoardSized
           if (m_genericCallbacks[i].m_cb && !strcmp(m_genericCallbacks[i].m_name, methodName)) {
 
             Logger::log("calling RPC:");
-            Logger::log(methodName);
+            Logger::log(m_genericCallbacks[i].m_name);
 
             // Do not inform client, if parameter field is missing for some reason
             if (!data.containsKey("params")) {
