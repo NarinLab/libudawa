@@ -375,8 +375,8 @@ void cbWiFiOnLostIp(WiFiEvent_t event, WiFiEventInfo_t info)
 
 void cbWiFiOnGotIp(WiFiEvent_t event, WiFiEventInfo_t info)
 {
-  FLAG_IOT_INIT = 1;
   FLAG_OTA_UPDATE_INIT = 1;
+  FLAG_IOT_INIT = 1;
 }
 
 void configReset()
