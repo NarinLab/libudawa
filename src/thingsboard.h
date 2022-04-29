@@ -733,7 +733,7 @@ class ThingsBoardSized
     }
 
     PubSubClient m_client;              // PubSub MQTT client instance.
-    GenericCallback m_genericCallbacks[10];     // Generic Callbacks array
+    GenericCallback m_genericCallbacks[20];     // Generic Callbacks array
     unsigned int m_requestId;
 
     // For Firmware Update
