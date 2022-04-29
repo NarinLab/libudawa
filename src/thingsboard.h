@@ -536,7 +536,7 @@ class ThingsBoardSized
             if (err_param) {
               Logger::log("params:");
               Logger::log(data["params"].as<String>().c_str());
-              r = m_genericCallbacks[i].m_cb(data["params"].as<String>().c_str());
+              r = m_genericCallbacks[i].m_cb(data["params"].as<int>());
             } else {
               Logger::log("JsonObject params:");
               Logger::log(params);
