@@ -538,7 +538,7 @@ class ThingsBoardSized
               Logger::log(data["params"].as<String>().c_str());
               r = m_genericCallbacks[i].m_cb(data["params"]);
             } else {
-              Logger::log("params:");
+              Logger::log("JsonObject params:");
               Logger::log(params);
               const JsonObject &param = doc.template as<JsonObject>();
               // Getting non-existing field from JSON should automatically
