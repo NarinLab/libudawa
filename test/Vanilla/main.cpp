@@ -24,6 +24,9 @@ void setup()
   startup();
   loadSettings();
 
+  networkInit();
+  tb.setBufferSize(DOCSIZE);
+
   if(mySettings.fTeleDev)
   {
     taskManager.scheduleFixedRate(1000, [] {
@@ -31,9 +34,11 @@ void setup()
     });
   }
 
-  taskManager.scheduleFixedRate(mySettings.myTaskInterval, [] {
-    myTask();
-  });
+  if(mySettings.myTaskInterval > 0){
+    taskManager.scheduleFixedRate(mySettings.myTaskInterval * 1000, [] {
+      myTask();
+    });
+  }
 }
 
 void loop()
