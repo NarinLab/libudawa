@@ -9,7 +9,7 @@
 #define main_h
 
 #define DOCSIZE 1500
-
+#include <Arduino.h>
 static const char* CA_CERT PROGMEM = R"EOF(
 -----BEGIN CERTIFICATE-----
 MIIGSjCCBDKgAwIBAgIJAMxU3KljbiooMA0GCSqGSIb3DQEBCwUAMIGwMQswCQYD
