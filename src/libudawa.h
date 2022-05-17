@@ -155,10 +155,10 @@ void startup() {
 
 void networkInit()
 {
-  WiFi.onEvent(cbWifiOnConnected, SYSTEM_EVENT_STA_CONNECTED);
-  WiFi.onEvent(cbWiFiOnDisconnected, SYSTEM_EVENT_STA_DISCONNECTED);
-  WiFi.onEvent(cbWiFiOnLostIp, SYSTEM_EVENT_STA_LOST_IP);
-  WiFi.onEvent(cbWiFiOnGotIp, SYSTEM_EVENT_STA_GOT_IP);
+  WiFi.onEvent(cbWifiOnConnected, ARDUINO_EVENT_WIFI_STA_CONNECTED);
+  WiFi.onEvent(cbWiFiOnDisconnected, ARDUINO_EVENT_WIFI_STA_DISCONNECTED);
+  WiFi.onEvent(cbWiFiOnLostIp, ARDUINO_EVENT_WIFI_STA_LOST_IP);
+  WiFi.onEvent(cbWiFiOnGotIp, ARDUINO_EVENT_WIFI_STA_GOT_IP);
   WiFi.mode(WIFI_STA);
   if(!config.wssid || *config.wssid == 0x00 || strlen(config.wssid) > 32)
   {
