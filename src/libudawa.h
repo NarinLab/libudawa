@@ -90,7 +90,7 @@ struct ConfigCoMCU
   uint8_t pinEcPower;
   uint8_t pinEcGnd;
   uint8_t pinEcData;
-  uint8_t pinPH;
+  uint8_t pin1Wire;
 };
 
 
@@ -612,7 +612,7 @@ void configCoMCUReset()
   doc["pinEcGnd"] = 16;
   doc["pinEcData"] = 14;
 
-  doc["pinPH"] = 17;
+  doc["pin1Wire"] = 17;
 
   serializeJson(doc, file);
   file.close();
@@ -656,7 +656,7 @@ void configCoMCULoad()
     configcomcu.pinEcGnd = doc["pinEcGnd"].as<uint8_t>();
     configcomcu.pinEcData = doc["pinEcData"].as<uint8_t>();
 
-    configcomcu.pinPH = doc["pinPH"].as<uint8_t>();
+    configcomcu.pin1Wire = doc["pin1Wire"].as<uint8_t>();
 
     sprintf_P(logBuff, PSTR("ConfigCoMCU loaded successfuly."));
     recordLog(4, PSTR(__FILE__), __LINE__, PSTR(__func__));
@@ -699,7 +699,7 @@ void configCoMCUSave()
   doc["pinEcGnd"] = configcomcu.pinEcGnd;
   doc["pinEcData"] = configcomcu.pinEcData;
 
-  doc["pinPH"] = configcomcu.pinPH;
+  doc["pin1Wire"] = configcomcu.pin1Wire;
 
   serializeJson(doc, file);
   file.close();
@@ -729,7 +729,7 @@ void syncConfigCoMCU()
   doc["pinEcGnd"] = configcomcu.pinEcGnd;
   doc["pinEcData"] = configcomcu.pinEcData;
 
-  doc["pinPH"] = configcomcu.pinPH;
+  doc["pin1Wire"] = configcomcu.pin1Wire;
 
   doc["method"] = "setConfigCoMCU";
   serialWriteToCoMcu(doc, 0);
