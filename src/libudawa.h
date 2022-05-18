@@ -710,6 +710,8 @@ void syncConfigCoMCU()
   configCoMCULoad();
 
   StaticJsonDocument<DOCSIZE> doc;
+  doc["method"] = "setConfigCoMCU";
+
   doc["fPanic"] = configcomcu.fPanic;
   doc["pEcKcoe"] = configcomcu.pEcKcoe;
   doc["pEcTcoe"] = configcomcu.pEcTcoe;
@@ -717,6 +719,10 @@ void syncConfigCoMCU()
   doc["pEcPpm"] = configcomcu.pEcPpm;
   doc["pEcR1"] = configcomcu.pEcR1;
   doc["pEcRa"] = configcomcu.pEcRa;
+
+  doc["method"] = "setConfigCoMCU";
+  serialWriteToCoMcu(doc, 0);
+  doc.clear();
 
   doc["bfreq"] = configcomcu.bfreq;
   doc["fBuzz"] = configcomcu.fBuzz;
@@ -733,6 +739,7 @@ void syncConfigCoMCU()
 
   doc["method"] = "setConfigCoMCU";
   serialWriteToCoMcu(doc, 0);
+  doc.clear();
 }
 
 bool loadFile(const char* filePath, char *buffer)
