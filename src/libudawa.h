@@ -877,10 +877,10 @@ void serialReadFromCoMcu(StaticJsonDocument<DOCSIZE> &doc)
   result = stream.str();
   if (err == DeserializationError::Ok)
   {
-    if(true){
+    /*if(true){
       sprintf_P(logBuff, PSTR("%s"), result.c_str());
       recordLog(5, PSTR(__FILE__), __LINE__, PSTR(__func__));
-    }
+    }*/
   }
   else
   {
