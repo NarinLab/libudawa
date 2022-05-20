@@ -612,7 +612,7 @@ void configCoMCUReset()
   doc["pinEcGnd"] = 16;
   doc["pinEcData"] = 14;
 
-  doc["pin1Wire"] = 17;
+  doc["pin1Wire"] = 2;
 
   serializeJson(doc, file);
   file.close();
