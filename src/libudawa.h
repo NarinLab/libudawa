@@ -781,6 +781,8 @@ callbackResponse processProvisionResponse(const callbackData &data)
   }
   if (strncmp(data["credentialsType"], "ACCESS_TOKEN", strlen("ACCESS_TOKEN")) == 0)
   {
+    sprintf_P(logBuff, PSTR("ACCESS TOKEN received: %s"), data["credentialsValue"].as<String>().c_str());
+    recordLog(5, PSTR(__FILE__), __LINE__, PSTR(__func__));
     strlcpy(config.accessToken, data["credentialsValue"].as<String>().c_str(), sizeof(config.accessToken));
     config.provSent = true;
     configSave();
